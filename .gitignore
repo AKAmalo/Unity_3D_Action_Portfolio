@@ -1,0 +1,48 @@
+.vs/
+# =========================
+# Unity Generated Folders
+# =========================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+
+# =========================
+# Auto Generated Files
+# =========================
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# =========================
+# Unity Cache / Memory
+# =========================
+MemoryCaptures/
+Recordings/
+
+# =========================
+# Build Files
+# =========================
+*.apk
+*.aab
+*.unitypackage
+
+# =========================
+# OS / System Files
+# =========================
+.DS_Store
+Thumbs.db
