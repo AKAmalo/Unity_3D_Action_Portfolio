@@ -8,11 +8,15 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private PlayerInputController input;
     private bool isGrounded;
+    private PlayerStateMachine stateMachine;
 
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float airControl = 0.1f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform modelRoot;
+    [SerializeField] private Animator animator;
+
+    public float MoveSpeed => moveSpeed;
 
     private void Awake()
     {
@@ -20,76 +24,84 @@ public class PlayerMovement : MonoBehaviour
         input = GetComponent<PlayerInputController>();
     }
 
+
+    void Start()
+    {
+        stateMachine = new PlayerStateMachine();
+        stateMachine.ChangeState(new IdleState(this));
+    }
+
+    void Update()
+    {
+        stateMachine.Update();
+        UpdateAnimation();
+    }
+
     void FixedUpdate()
     {
         isGrounded = CheckGrounded();
-        Move();
-        Jump();
     }
 
-    // 이동
-    private void Move()
+    // === 상태에서 호출할 함수 ===
+    public bool HasMoveInput()
     {
-        Vector3 moveDir = new Vector3(input.MoveInput.x, 0, input.MoveInput.y).normalized;
-        Vector3 targetVelocity = moveDir * moveSpeed;
-        Vector3 velocity = rb.velocity;
+        return input.MoveInput != Vector2.zero;
+    }
 
-        // 공중 방향전환 속도 제어
-        if(isGrounded)
-        {
-            // 지상 정상 이동속도
-            velocity.x = targetVelocity.x;
-            velocity.z = targetVelocity.z;
-        }
-        else
-        {
-            Vector3 horizontalVelocity = new Vector3(velocity.x, 0, velocity.z);
+    public Vector2 GetMoveInput()
+    {
+        return input.MoveInput;
+    }
 
-            if (moveDir != Vector3.zero)
-            {
-                // 점프 중일 때 방향 전환 시 속도 변경
-                Vector3 newVelocity = Vector3.Lerp(horizontalVelocity, targetVelocity, airControl);
+    public bool IsGrounded()
+    {
+        return isGrounded;
+    }
 
-                velocity.x = newVelocity.x;
-                velocity.z = newVelocity.z;
-            }
-            else
-            {
-                // 방향 입력 없을 시 자연 감속
-                horizontalVelocity *= 0.98f;
+    public bool ConsumeJump()
+    {
+        return input.ConsumeJump();
+    }
 
-                velocity.x = horizontalVelocity.x;
-                velocity.z = horizontalVelocity.z;
-            }
-        }
-        rb.velocity = velocity;
+    public void ChangeState(IPlayerState newState)
+    {
+        stateMachine.ChangeState(newState);
     }
 
     // 점프
-    private void Jump()
+    public void Jump()
     {
-        if (input.ConsumeJump() && isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false; // 점프 입력 받는 즉시 후 입력 차단
-        }
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isGrounded = false; // 점프 입력 받는 즉시 후 입력 차단
+    }
+
+    public void Rotate(Vector3 moveDir)
+    {
+        if (moveDir == Vector3.zero)    // 0일 때 회전 금지 (미입력 시 떨림 방지)
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+
+        modelRoot.rotation = Quaternion.RotateTowards(      // 부드러운 회전으로 자연스러움
+            modelRoot.rotation,
+            targetRotation,
+            360f * Time.deltaTime   // 회전 속도 (deg/sec)
+            );
     }
 
     // 바닥 체크
-
     private bool CheckGrounded()
     {
         Vector3 origin = transform.position + Vector3.up * 0.1f;
         return Physics.Raycast(origin, Vector3.down, 1.2f, groundLayer);
     }
 
-    void Start()
+    private void UpdateAnimation()
     {
-        
-    }
+        float speed = new Vector3(rb.velocity.x,0,rb.velocity.z).magnitude;
 
-    void Update()
-    {
-        
+        float normalizedSpeed = speed / moveSpeed;
+
+        animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
     }
 }

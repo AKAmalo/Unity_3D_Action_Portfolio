@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class PlayerInputController : MonoBehaviour
 {
-    public Vector2 MoveInput {get; private set;}
-    public bool JumpPressed { get; private set;}
+    public Vector2 MouseDelta { get; private set; }
+    public Vector2 MoveInput { get; private set; }
+    public bool JumpPressed { get; private set; }
 
     public bool ConsumeJump()
     {
@@ -30,6 +31,12 @@ public class PlayerInputController : MonoBehaviour
         {
             JumpPressed = true;
         }
+
+        // 마우스 입력 제어
+        MouseDelta = new Vector2(
+            Input.GetAxis("Mouse X"),
+            Input.GetAxis("Mouse Y")
+            );
     }
 
     void Start()
