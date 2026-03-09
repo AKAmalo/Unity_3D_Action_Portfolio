@@ -1,128 +1,409 @@
 # Unity 3D Action Controller
 
 물리 기반 캐릭터 컨트롤과 공중 제어(Air Control)를 고려한  
-3D 액션 이동 시스템 구현 프로젝트
+**3D 액션 캐릭터 이동 시스템 구현 프로젝트**
+
+플레이어 FSM 기반 상태 관리와 카메라 피드백 시스템을 포함한  
+3인칭 액션 캐릭터 컨트롤러 구현.
 
 ---
 
-## 🎮 Demo
+# 🎮 Demo
 
-> 캐릭터 이동, 점프, 공중 제어가 자연스럽게 동작하는 모습
+> 캐릭터 이동, 점프, 낙하, 착지, 카메라 반응이 자연스럽게 동작하는 모습
 
 ![demo](링크)
 
 ---
 
-## 🎮 Controls
+# 🎮 Controls
 
-- 이동: WASD
-- 점프: Space
-
----
-
-## 🎯 핵심 구현
-
-- Rigidbody 기반 물리 이동 시스템 설계
-- InputController를 통한 입력 / 로직 분리 구조 적용
-- 공중 제어(Air Control)를 고려한 방향 보간 처리
-- Raycast 기반 Ground Detection으로 점프 안정성 확보
-- 카메라 기반 이동 시스템 (카메라 방향 기준 이동)
-- 캐릭터 회전과 이동 방향 동기화
-- Animator 기반 Idle / Walk 애니메이션 상태 전환
+| Action | Key |
+|------|------|
+| Move | WASD |
+| Run | Shift |
+| Jump | Space |
+| Camera | Mouse |
 
 ---
 
-## 🧠 설계
+# 🎯 핵심 구현
 
-### InputController 분리 이유
-- 입력 처리와 캐릭터 로직을 분리하여 **책임 분리(SRP)** 적용
-- 입력 방식 변경 (키보드 → AI / 네트워크 입력) 시  
-  캐릭터 로직 수정 없이 확장 가능
+### Player Controller
+- Rigidbody 기반 물리 이동 시스템
+- Player FSM 기반 상태 관리
+- 공중 제어(Air Control) 이동 시스템
+- 카메라 기준 이동 시스템
 
-### Rigidbody 기반 이동 선택 이유
-- 물리 엔진을 활용한 자연스러운 가속/감속 구현
-- CharacterController 대비 충돌 및 반응이 더 현실적
-- FixedUpdate 기반 물리 처리로 일관된 동작 보장
+### Movement System
+- Idle / Walk / Run 상태 전환
+- 카메라 기준 방향 이동
+- 이동 방향 기반 캐릭터 회전
 
-### 카메라 기반 이동 설계
-- 플레이어 입력을 월드 기준이 아닌 카메라 기준으로 변환
-- 3인칭 시점에서 직관적인 조작 제공
-
----
-
-## ⚙️ 구현 상세
-
-### 이동 시스템
-- Rigidbody.velocity 직접 제어로 즉각적인 입력 반응 확보
-- 공중 상태에서는 이동 속도 제한 (Air Control 비율 적용)
-- 카메라 forward/right 벡터를 활용한 방향 계산
-
-### 회전 시스템
-- 이동 방향 기준으로 캐릭터 회전
-- Quaternion 기반 보간으로 부드러운 회전 처리
-
-### 점프 시스템
-- AddForce(Impulse) 기반 점프 적용
-- 입력 상태를 1회 소비하는 구조로 중복 점프 방지
-
-### 바닥 체크
+### Jump & Fall System
+- Rigidbody Impulse 기반 점프
+- 공중 이동 제어(Air Control)
 - Raycast 기반 Ground Detection
-- 일정 거리 이하일 때만 점프 가능하도록 제한
 
-### 공중 제어 (Air Control)
-- Lerp 기반 방향 전환
-- 지상 대비 공중 이동 영향도 감소
+### Landing System
+- 낙하 속도 기반 **Soft Landing / Hard Landing 분기**
+- Hard Landing 시 **회전 제한**
+- 착지 후 **이동 속도 점진적 회복**
+- Landing 애니메이션 상태 관리
 
-### 애니메이션 시스템
-- Animator Controller를 통한 상태 머신 구성
-- Speed 파라미터 기반 Idle / Walk 전환
-- 이동 속도에 따라 자연스럽게 애니메이션 변경
-
----
-
-## 🚧 트러블슈팅
-
-### 문제 1: 점프 높이가 프레임마다 달라짐
-- 원인: AddForce가 Update에서 중복 적용됨
-- 해결:
-  - 입력을 1회만 처리하는 구조로 변경
-  - 모든 물리 연산을 FixedUpdate로 이동
+### Camera System
+- 마우스 기반 카메라 회전
+- 이동 방향 기반 **카메라 자동 정렬**
+- 착지 시 **카메라 임팩트 및 흔들림 효과**
 
 ---
 
-### 문제 2: 공중 이동이 부자연스러움
-- 원인: velocity를 즉시 변경하여 방향 전환이 급격함
-- 해결:
-  - Lerp를 활용한 점진적 방향 전환
-  - 공중 제어 비율을 적용하여 자연스러운 움직임 구현
+# 🧠 시스템 설계
+
+## Player FSM (Finite State Machine)
+
+플레이어 행동을 상태 단위로 분리하여 관리.
+
+```
+Idle
+ ├ Move
+ │   └ Run
+ ├ Jump
+ │   └ Fall
+ │        └ Land
+```
+
+FSM 구조를 통해
+
+- 상태 전환 관리
+- 행동 로직 분리
+- 시스템 확장 용이
 
 ---
 
-### 문제 3: 캐릭터 회전이 끊기는 현상
-- 원인: 회전을 즉시 적용하여 급격한 방향 전환 발생
-- 해결:
-  - Slerp 또는 Lerp를 활용한 회전 보간 적용
+## InputController 분리 이유
+
+입력 처리와 캐릭터 로직을 분리하여 **책임 분리(SRP)** 적용
+
+장점
+
+- 입력 방식 교체 가능  
+  (Keyboard → AI → Network)
+
+- 캐릭터 로직 독립 유지
 
 ---
 
-### 문제 4: 캐릭터 모델이 찌그러지는 현상
-- 원인: 부모 오브젝트 스케일 또는 회전 구조 문제
-- 해결:
-  - ModelRoot 분리 후 회전은 ModelRoot에만 적용
-  - 스케일은 (1,1,1) 유지
+## Rigidbody 기반 이동 선택 이유
+
+- 물리 엔진을 활용한 자연스러운 움직임
+- CharacterController 대비 충돌 반응이 현실적
+- FixedUpdate 기반 물리 처리
 
 ---
 
-## 🛠 Tech Stack
+## 카메라 기반 이동 설계
+
+플레이어 입력을 **카메라 기준 방향**으로 변환
+
+```
+moveDir =
+camera.forward * input.y +
+camera.right * input.x
+```
+
+이를 통해 3인칭 액션 게임에서  
+직관적인 조작감을 제공.
+
+---
+
+# ⚙️ 구현 상세
+
+## 이동 시스템
+
+- Rigidbody.velocity 직접 제어
+- 이동 입력 즉각 반응
+- Run 상태 속도 증가
+
+---
+
+## 공중 제어 (Air Control)
+
+공중 상태에서 이동 영향 감소
+
+```
+velocity.x = Mathf.Lerp(current, target, airControl)
+velocity.z = Mathf.Lerp(current, target, airControl)
+```
+
+지상 대비 공중 이동 영향도를 줄여  
+더 자연스러운 움직임 구현.
+
+---
+
+## 회전 시스템
+
+이동 방향 기준 캐릭터 회전
+
+```
+Quaternion.RotateTowards()
+```
+
+- 부드러운 방향 전환
+- 입력 없는 상태에서 떨림 방지
+
+---
+
+## 점프 시스템
+
+Impulse 기반 점프 적용
+
+```
+rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse)
+```
+
+- 점프 입력 1회 소비
+- 중복 점프 방지
+
+---
+
+## 낙하 시스템
+
+점프 최고점 이후 Fall 상태 전환
+
+```
+if (rb.velocity.y <= 0)
+    ChangeState(FallState)
+```
+
+---
+
+## 착지 시스템
+
+낙하 최고 속도를 기록하여  
+착지 강도를 판별.
+
+```
+if (maxFallSpeed < hardLandingThreshold)
+    HardLanding
+else
+    SoftLanding
+```
+
+### Soft Landing
+
+- 이동 가능
+- 카메라 약한 임팩트
+
+### Hard Landing
+
+- 이동 제한
+- 회전 제한
+- 카메라 강한 임팩트
+- 이동 속도 점진 회복
+
+---
+
+## 카메라 시스템
+
+### 카메라 회전
+
+마우스 입력 기반 회전
+
+```
+yaw += mouseX
+pitch -= mouseY
+```
+
+---
+
+### 카메라 자동 정렬
+
+플레이어 이동 방향 기준 카메라 회전
+
+조건
+
+- 일정 시간 마우스 입력 없음
+- 플레이어 이동 중
+
+---
+
+### 카메라 착지 임팩트
+
+착지 시 카메라 위치에 임팩트 적용
+
+구성
+
+- 카메라 Drop (아래로 눌림)
+- Camera Shake
+
+Hard Landing 시 더 강하게 적용.
+
+---
+
+# 📂 Project Structure
+
+```
+Assets
+ ├ Scripts
+ │  ├ Player
+ │  │  ├ PlayerMovement.cs
+ │  │  ├ PlayerInputController.cs
+ │  │
+ │  │  ├ States
+ │  │  │  ├ IdleState.cs
+ │  │  │  ├ MoveState.cs
+ │  │  │  ├ RunState.cs
+ │  │  │  ├ JumpState.cs
+ │  │  │  ├ FallState.cs
+ │  │  │  └ LandState.cs
+ │  │
+ │  │  └ StateMachine
+ │  │     ├ PlayerStateMachine.cs
+ │  │     └ IPlayerState.cs
+ │  │
+ │  └ Camera
+ │     └ CameraController.cs
+```
+
+플레이어 시스템을 FSM 구조로 설계하여  
+각 행동을 상태 단위로 분리하여 관리하였다.
+
+---
+
+# 🧩 System Architecture
+
+플레이어 입력부터 캐릭터 행동까지의 흐름
+
+```
+Player Input
+      │
+      ▼
+PlayerInputController
+      │
+      ▼
+PlayerMovement
+      │
+      ▼
+PlayerStateMachine
+      │
+      ▼
+Player States
+ ├ IdleState
+ ├ MoveState
+ ├ RunState
+ ├ JumpState
+ ├ FallState
+ └ LandState
+```
+
+각 상태는 독립적인 클래스로 구현되어  
+상태별 행동 로직을 분리하였다.
+
+---
+
+# 🎥 Camera System Flow
+
+카메라 시스템 구조
+
+```
+Mouse Input
+      │
+      ▼
+CameraController
+      │
+      ├ Camera Rotation
+      ├ Auto Camera Align
+      └ Landing Camera Impact
+```
+
+카메라는 플레이어 이동 방향을 기반으로 자동 정렬되며  
+착지 시 카메라 임팩트 효과를 통해 액션 게임의 타격감을 강화하였다.
+
+---
+
+# 🚧 트러블슈팅
+
+## 문제 1: 점프 높이가 프레임마다 달라짐
+
+원인  
+AddForce가 Update에서 반복 실행
+
+해결
+
+- 입력을 1회만 소비
+- 물리 연산을 FixedUpdate로 이동
+
+---
+
+## 문제 2: 공중 이동이 부자연스러움
+
+원인  
+velocity 즉시 변경
+
+해결
+
+- Lerp 기반 방향 보간
+- Air Control 비율 적용
+
+---
+
+## 문제 3: 캐릭터 회전이 끊김
+
+원인  
+즉시 회전 적용
+
+해결
+
+- Quaternion.RotateTowards 적용
+
+---
+
+## 문제 4: Hard Landing 애니메이션 미작동
+
+원인  
+Inspector 값 변경이 코드에 반영되지 않음
+
+해결
+
+- Landing Threshold 값 확인
+- Animator 파라미터 점검
+
+---
+
+## 문제 5: 착지 임팩트 부자연스러움
+
+원인  
+카메라 위치 즉시 변경
+
+해결
+
+- Drop + Shake 조합
+- Lerp 기반 복원
+
+---
+
+# 🛠 Tech Stack
 
 - Unity 2022.3 LTS
 - C#
 - Rigidbody Physics
 - Animator (Mecanim)
+- Finite State Machine
 
 ---
 
-## ▶ 실행 방법
+# ▶ 실행 방법
 
-1. Unity 2022.3 LTS에서 프로젝트 실행
-2. MainScene 실행
+1. Unity 2022.3 LTS로 프로젝트 실행  
+2. `MainScene` 실행
+
+---
+
+# 📌 향후 확장 계획
+
+- Coyote Time / Jump Buffer
+- Landing Particle Effects
+- Surface 기반 Footstep Sound
+- Camera FOV Impact
+- Combat System
