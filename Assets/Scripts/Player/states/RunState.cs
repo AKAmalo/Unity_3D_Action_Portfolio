@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveState : IPlayerState
+public class RunState : IPlayerState
 {
     private PlayerMovement player;
     private Rigidbody rb;
 
-    public MoveState(PlayerMovement player)
+    public RunState(PlayerMovement player)
     {
         this.player = player;
         this.rb = player.GetRigidbody();
@@ -15,37 +15,34 @@ public class MoveState : IPlayerState
 
     public void Enter()
     {
-
+        // Run 애니메이션 진입
+        player.GetAnimator().SetFloat("Speed", 1f);
     }
 
     public void Update()
     {
         Move();
 
-        // Idle 전환
+        // Shift 떼면 Walk로
+        if (!player.IsRunning())
+        {
+            player.ChangeState(new MoveState(player));
+            return;
+        }
+
+        // 입력 없으면 Idle
         if (!player.HasMoveInput())
         {
             player.ChangeState(new IdleState(player));
             return;
         }
 
-        // Run 전환
-        if(player.IsRunning())
-        {
-            player.ChangeState(new RunState(player));
-            return;
-        }
-
+        // 점프
         if(player.ConsumeJump() && player.IsGrounded())
         {
             player.ChangeState(new JumpState(player));
             return;
         }
-
-        float speed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float normalizedSpeed = speed / player.RunSpeed;
-
-        player.GetAnimator().SetFloat("Speed", normalizedSpeed);
     }
 
     public void Exit()
@@ -73,8 +70,8 @@ public class MoveState : IPlayerState
 
         float speedMultiper = player.GetMoveSpeedMultiplier();
 
-        velocity.x = moveDir.x * player.MoveSpeed * speedMultiper;
-        velocity.z = moveDir.z * player.MoveSpeed * speedMultiper;
+        velocity.x = moveDir.x * player.RunSpeed * speedMultiper;
+        velocity.z = moveDir.z * player.RunSpeed * speedMultiper;
 
         rb.velocity = velocity;
 

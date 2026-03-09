@@ -13,7 +13,7 @@ public class IdleState : IPlayerState
 
     public void Enter()
     {
-        // Debug.Log("Idle");
+        player.GetAnimator().SetFloat("Speed", 0f);
     }
 
     public void Update()
@@ -21,11 +21,13 @@ public class IdleState : IPlayerState
         if(player.HasMoveInput())
         {
             player.ChangeState(new MoveState(player));
+            return;
         }
 
         if (player.ConsumeJump() && player.IsGrounded())
         {
-            player.Jump(); // 기존 점프 재사용
+            player.ChangeState(new JumpState(player));
+            return;
         }
     }
 
