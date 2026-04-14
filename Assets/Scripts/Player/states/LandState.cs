@@ -33,6 +33,7 @@ public class LandState : IPlayerState
             player.SetCanRotate(false); // HardLanding 카메라 회전 금지
             player.SetRotateSpeed(80f);
             player.SetMoveSpeedMultiplier(0.35f);
+            player.ConsumeJumpBuffer();
 
             // 모션 중 이동 제거(강제 정지)
             Rigidbody rb = player.GetRigidbody();
@@ -49,6 +50,16 @@ public class LandState : IPlayerState
 
     public void Update()
     {
+        if (!hardLanding)
+        {
+            if (player.CanJump())
+            {
+                player.ConsumeJumpBuffer();
+                player.ChangeState(new JumpState(player));
+                return;
+            }
+        }
+
         timer += Time.deltaTime;
 
         float startMultiplier = hardLanding ? 0.35f : 0.7f;

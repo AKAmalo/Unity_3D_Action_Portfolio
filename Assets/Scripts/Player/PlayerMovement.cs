@@ -24,6 +24,14 @@ public class PlayerMovement : MonoBehaviour
     public float RunSpeed => runSpeed;
     public float hardLandingThreshold = -7f;
 
+    // === Coyote Time ===
+    [SerializeField] private float coyoteTime = 0.1f;
+    private float coyoteCounter;
+
+    // === Jump Buffer ===
+    [SerializeField] private float jumpBufferTime = 0.1f;
+    private float jumpBufferCounter;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -39,13 +47,50 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        isGrounded = CheckGrounded();
+
+        UpdateTimers();
         stateMachine.Update();
         UpdateAnimation();
     }
 
     void FixedUpdate()
     {
-        isGrounded = CheckGrounded();
+
+    }
+
+    private void UpdateTimers()
+    {
+        // Coyote Time
+        if (isGrounded)
+            coyoteCounter = coyoteTime;
+        else
+        {
+            coyoteCounter -= Time.deltaTime;
+
+            if (coyoteCounter < 0f) coyoteCounter = 0f;
+        }
+
+        // Jump Buffer
+        if (input.ConsumeJump())
+            jumpBufferCounter = jumpBufferTime;
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+
+            if (jumpBufferCounter < 0f) jumpBufferCounter = 0f;
+        }
+    }
+
+    public bool CanJump()
+    {
+        return coyoteCounter > 0f && jumpBufferCounter > 0f;
+    }
+
+    public void ConsumeJumpBuffer()
+    {
+        jumpBufferCounter = 0f;
+        coyoteCounter = 0f;
     }
 
     // === 상태에서 호출할 함수 ===
@@ -69,11 +114,6 @@ public class PlayerMovement : MonoBehaviour
         return isGrounded;
     }
 
-    public bool ConsumeJump()
-    {
-        return input.ConsumeJump();
-    }
-
     public bool IsRunning()
     {
         return input.RunPressed;
@@ -87,12 +127,12 @@ public class PlayerMovement : MonoBehaviour
     // 점프
     public void Jump()
     {
-        if (!isGrounded) return;
-
         rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // 기존 Y속도 제거
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
 
         isGrounded = false; // 점프 입력 받는 즉시 후 입력 차단
+
+        coyoteCounter = 0f;
     }
 
     public void Rotate(Vector3 moveDir)

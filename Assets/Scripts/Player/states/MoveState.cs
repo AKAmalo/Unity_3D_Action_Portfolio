@@ -36,8 +36,9 @@ public class MoveState : IPlayerState
             return;
         }
 
-        if(player.ConsumeJump() && player.IsGrounded())
+        if(player.CanJump())
         {
+            player.ConsumeJumpBuffer();
             player.ChangeState(new JumpState(player));
             return;
         }
