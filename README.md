@@ -272,15 +272,15 @@ Hard Landing 시 더 강하게 적용.
 
 ### Variable Jump System
 
-* 짧게 누르면 낮게 점프하고, 길게 누르면 최대 높이까지 점프하는 Variable Jump 시스템 구현
+짧게 누르면 낮게 점프하고, 길게 누르면 최대 높이까지 점프하는 Variable Jump 시스템 구현
 * Implemented variable jump system based on input hold duration
 
 ---
 
 ### Step Climb System (WIP)
 
-* 계단 및 턱 자동 오르기 기능 구현 진행 중
-Currently working on automatic stair/step climbing system
+계단 및 턱 자동 오르기 기능 구현 진행 중
+* Currently working on automatic stair/step climbing system
 
 ---
 
