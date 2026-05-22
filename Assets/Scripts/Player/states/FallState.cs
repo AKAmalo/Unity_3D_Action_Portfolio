@@ -8,6 +8,9 @@ public class FallState : IPlayerState
     private Rigidbody rb;
     private float maxFallSpeed;
 
+    // 낙하 중력 배수
+    private float fallGravityMultiplier = 1.3f;
+
     public FallState(PlayerMovement player)
     {
         this.player = player;
@@ -23,6 +26,12 @@ public class FallState : IPlayerState
 
     public void Update()
     {
+        // Fall Gravity 강화
+        if(rb.velocity.y < 0f)
+        {
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallGravityMultiplier - 1f) * Time.deltaTime;
+        }
+
         AirMove();
 
         // 낙하 최고 속도 기록

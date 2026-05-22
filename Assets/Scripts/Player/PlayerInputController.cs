@@ -7,6 +7,7 @@ public class PlayerInputController : MonoBehaviour
     public Vector2 MouseDelta { get; private set; }
     public Vector2 MoveInput { get; private set; }
     public bool JumpPressed { get; private set; }
+    public bool JumpHold { get; private set; }
     public bool RunPressed { get; private set; }
 
     public bool ConsumeJump()
@@ -32,6 +33,8 @@ public class PlayerInputController : MonoBehaviour
         {
             JumpPressed = true;
         }
+
+        JumpHold = Input.GetKey(KeyCode.Space);
 
         // 달리기 입력 제어
         RunPressed = Input.GetKey(KeyCode.LeftShift);

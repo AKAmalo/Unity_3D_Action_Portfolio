@@ -7,10 +7,16 @@ public class JumpState : IPlayerState
     private PlayerMovement player;
     private Rigidbody rb;
 
+    // 입력 접근 참조
+    private PlayerInputController input;
+
     public JumpState(PlayerMovement player)
     {
         this.player = player;
         this.rb = player.GetRigidbody();
+
+        // 입력 접근 참조
+        this.input = player.GetComponent<PlayerInputController>();
     }
 
     public void Enter()
@@ -26,6 +32,13 @@ public class JumpState : IPlayerState
     {
         // 공중 이동 (MoveState와 동일하지만 약하게)
         AirMove();
+
+        // Varible Jump (Jump Cut)
+        if (input.JumpHold && rb.velocity.y > 0f)
+        {
+            // 점프 높이 줄이기
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, rb.velocity.z);
+        }
 
         // 최고점 도달 -> 낙하 상태 전환
         if (rb.velocity.y <= 0f)

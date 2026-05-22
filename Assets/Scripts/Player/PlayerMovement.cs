@@ -20,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform modelRoot;
     [SerializeField] private Animator animator;
 
+    // Step Climb 설정값
+    [SerializeField] private float stepHeight = 0.55f; // 계단 오르기 높이(오브젝트의 BoxColider의 Size.Y 값)
+    [SerializeField] private float stepSmooth = 0.1f; // 계단 오르기 부드러움
+
     public float MoveSpeed => moveSpeed;
     public float RunSpeed => runSpeed;
     public float hardLandingThreshold = -7f;
@@ -56,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-
+        StepClimb();
     }
 
     private void UpdateTimers()
@@ -203,8 +207,51 @@ public class PlayerMovement : MonoBehaviour
     // 바닥 체크
     private bool CheckGrounded()
     {
-        Vector3 origin = transform.position + Vector3.up * 0.1f;
-        return Physics.Raycast(origin, Vector3.down, 1.2f, groundLayer);
+        Vector3 origin = transform.position + Vector3.up * 0.2f;
+
+        float sphereRadius = 0.3f;
+        float checkDistance = 1.0f;
+
+        RaycastHit hit;
+
+        bool grounded = Physics.SphereCast(origin, sphereRadius, Vector3.down, out hit, checkDistance, groundLayer);
+
+
+        return grounded;
+        // return Physics.Raycast(origin, Vector3.down, 1.2f, groundLayer);
+    }
+
+    // 자동 계단 오르기 기능
+    private void StepClimb()
+    {
+        Vector3 origin = transform.position;
+
+        // 아레 레이캐스트로 계단 감지
+        Vector3 lowerRayOrigin = origin + Vector3.up * 0.05f;
+
+        // 위 레이캐스트로 계단 높이 감지
+        Vector3 upperRayorigin = origin + Vector3.up * stepHeight;
+
+        Vector3 forward = modelRoot.forward;
+
+        float rayDistance = 0.5f;
+        float sphereRadius = 0.25f;
+
+        // 아래 레이캐스트 - 계단 감지
+        bool lowerHit = Physics.SphereCast(lowerRayOrigin, sphereRadius, forward, out RaycastHit lowerHitInfo, rayDistance, groundLayer);
+
+        // 위 레이캐스트 - 계단 높이 감지
+        bool upperHit = Physics.SphereCast(upperRayorigin, sphereRadius, forward, out RaycastHit upperHitInfo, rayDistance, groundLayer);
+
+        // 계단 판정
+        if(lowerHit && !upperHit)
+        {
+            Vector3 stepUp = Vector3.up * stepSmooth;
+
+            Vector3 stepForward = forward * 0.1f;
+
+            rb.position += stepUp + stepForward; // 부드럽게 올리기
+        }
     }
 
     private void UpdateAnimation()
