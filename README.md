@@ -277,10 +277,12 @@ Hard Landing 시 더 강하게 적용.
 
 ---
 
-### Step Climb System (WIP)
+### Step Climb System
 
-계단 및 턱 자동 오르기 기능 구현 진행 중
-* Currently working on automatic stair/step climbing system
+계단 및 턱 자동 오르기 기능 구현
+* working on automatic stair/step climbing system
+
+계단 오르면서 턱에서 약간의 점프가 되는 부자연스러움 있음. (수정 중)
 
 ---
 
