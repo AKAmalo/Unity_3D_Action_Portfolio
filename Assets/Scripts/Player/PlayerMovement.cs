@@ -21,8 +21,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Animator animator;
 
     // Step Climb 설정값
-    [SerializeField] private float stepHeight = 0.55f; // 계단 오르기 높이(오브젝트의 BoxColider의 Size.Y 값)
-    [SerializeField] private float stepSmooth = 0.1f; // 계단 오르기 부드러움
+    [SerializeField] private CapsuleCollider capsuleCollider;
+    [SerializeField] private float maxStepHeight = 0.4f; // 실제 올라갈 수 있는 최대 높이
+    [SerializeField] private float stepCheckDistance = 0.5f; // 계단 감지 거리
+    [SerializeField] private float maxStepAngle = 45f; // 벽 판정 각도 제한
 
     public float MoveSpeed => moveSpeed;
     public float RunSpeed => runSpeed;
@@ -40,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         input = GetComponent<PlayerInputController>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
 
@@ -224,33 +227,42 @@ public class PlayerMovement : MonoBehaviour
     // 자동 계단 오르기 기능
     private void StepClimb()
     {
-        Vector3 origin = transform.position;
+        if (!HasMoveInput() || !isGrounded)    // 이동 입력 없거나 공중에서는 실행 X
+            return;
 
-        // 아레 레이캐스트로 계단 감지
-        Vector3 lowerRayOrigin = origin + Vector3.up * 0.05f;
+        Vector3 moveDir = GetHorizontalMoveDirection();
 
-        // 위 레이캐스트로 계단 높이 감지
-        Vector3 upperRayorigin = origin + Vector3.up * stepHeight;
+        Vector3 horizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        Vector3 forward = modelRoot.forward;
+        if (horizontalVel.magnitude < 0.1f) // 너무 느리면 실행 X
+            return;
 
-        float rayDistance = 0.5f;
-        float sphereRadius = 0.25f;
+        // 캡슐 하단 위치 계산
+        float colliderBottom = transform.position.y + capsuleCollider.center.y - (capsuleCollider.height * 0.5f);
+        // 아래 감지 시작점
+        Vector3 lowerOrigin = new Vector3(transform.position.x, colliderBottom + 0.05f, transform.position.z);
+        // 위 감지 시작점
+        Vector3 upperOrigin = lowerOrigin + Vector3.up * maxStepHeight;
 
-        // 아래 레이캐스트 - 계단 감지
-        bool lowerHit = Physics.SphereCast(lowerRayOrigin, sphereRadius, forward, out RaycastHit lowerHitInfo, rayDistance, groundLayer);
+        // 아래 레이 - 장애물 있는지 확인
+        bool lowerHit = Physics.Raycast(lowerOrigin, moveDir, out RaycastHit lowerHitInfo, stepCheckDistance, groundLayer);
+        // 위 레이 - 공간 비어있는지 확인
+        bool upperHit = Physics.Raycast(upperOrigin, moveDir, stepCheckDistance, groundLayer);
 
-        // 위 레이캐스트 - 계단 높이 감지
-        bool upperHit = Physics.SphereCast(upperRayorigin, sphereRadius, forward, out RaycastHit upperHitInfo, rayDistance, groundLayer);
-
-        // 계단 판정
-        if(lowerHit && !upperHit)
+        // 계단 판정 - 아래 막혀있고, 위는 비어있어야함.
+        if (lowerHit && !upperHit)
         {
-            Vector3 stepUp = Vector3.up * stepSmooth;
+            // 벽 판정 방지 - 표면 각도 검사
+            float surfaceAngle = Vector3.Angle(lowerHitInfo.normal, Vector3.up);
 
-            Vector3 stepForward = forward * 0.1f;
+            // 너무 가파르면 벽으로 간주
+            if (surfaceAngle > maxStepAngle)
+                return;
 
-            rb.position += stepUp + stepForward; // 부드럽게 올리기
+            // 부드러운 계단 오르기
+            Vector3 stepUp = Vector3.up * maxStepHeight;
+
+            rb.MovePosition(rb.position + stepUp * Time.fixedDeltaTime * 8f);
         }
     }
 
