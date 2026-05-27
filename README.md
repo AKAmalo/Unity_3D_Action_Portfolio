@@ -282,8 +282,6 @@ Hard Landing 시 더 강하게 적용.
 계단 및 턱 자동 오르기 기능 구현
 * working on automatic stair/step climbing system
 
-계단 오르면서 턱에서 약간의 점프가 되는 부자연스러움 있음. (수정 중)
-
 ---
 
 # 📂 Project Structure
@@ -461,6 +459,17 @@ Jump Buffer가 Landing 상태까지 유지됨
 
 * Hard Landing 상태에서 점프 입력 차단
 * Jump Buffer 무효화 처리
+
+---
+
+## 문제 9: 계단 오를 때 미끄러지는 현상
+
+원인
+이동이 끝났을 때 속력이 완전히 지워지지 않음
+
+해결
+
+* IdleState에서 이동 안 할 때 수평이동값을 없애는 조치
 
 ---
 
