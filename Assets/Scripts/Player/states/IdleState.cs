@@ -14,6 +14,10 @@ public class IdleState : IPlayerState
     public void Enter()
     {
         player.GetAnimator().SetFloat("Speed", 0f);
+
+        // Idle 진입 시 수평 속도 제거
+        Rigidbody rb = player.GetRigidbody();
+        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
     }
 
     public void Update()

@@ -244,7 +244,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 34474066}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: ffa52dac379a54f43be2f540529a40d2, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -373,7 +373,6 @@ MonoBehaviour:
     m_Bits: 8
   modelRoot: {fileID: 253016758}
   animator: {fileID: 63209191}
-  capsuleCollider: {fileID: 0}
   maxStepHeight: 0.4
   stepCheckDistance: 0.5
   maxStepAngle: 45

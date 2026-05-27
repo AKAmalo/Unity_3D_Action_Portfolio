@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Animator animator;
 
     // Step Climb 설정값
-    [SerializeField] private CapsuleCollider capsuleCollider;
+    private CapsuleCollider capsuleCollider;
     [SerializeField] private float maxStepHeight = 0.4f; // 실제 올라갈 수 있는 최대 높이
     [SerializeField] private float stepCheckDistance = 0.5f; // 계단 감지 거리
     [SerializeField] private float maxStepAngle = 45f; // 벽 판정 각도 제한
@@ -230,6 +230,9 @@ public class PlayerMovement : MonoBehaviour
         if (!HasMoveInput() || !isGrounded)    // 이동 입력 없거나 공중에서는 실행 X
             return;
 
+        if(rb.velocity.y > 0.1f)   // 점프 상승 중이면 실행 금지
+            return;
+
         Vector3 moveDir = GetHorizontalMoveDirection();
 
         Vector3 horizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
@@ -260,9 +263,11 @@ public class PlayerMovement : MonoBehaviour
                 return;
 
             // 부드러운 계단 오르기
-            Vector3 stepUp = Vector3.up * maxStepHeight;
+       //     Vector3 stepUp = Vector3.up * maxStepHeight;
+       //     rb.MovePosition(rb.position + stepUp * Time.fixedDeltaTime * 8f);
 
-            rb.MovePosition(rb.position + stepUp * Time.fixedDeltaTime * 8f);
+            Vector3 stepMove = (Vector3.up * maxStepHeight) + (moveDir * 0.08f);
+            rb.MovePosition(rb.position + stepMove * Time.fixedDeltaTime * 8f);
         }
     }
 
