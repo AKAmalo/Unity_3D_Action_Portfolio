@@ -38,6 +38,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpBufferTime = 0.1f;
     private float jumpBufferCounter;
 
+    // 공중 판정 확인 시간
+    [SerializeField] private float fallGraceTime = 0.12f;
+    private float airborneTimer = 0f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -55,6 +59,12 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         isGrounded = CheckGrounded();
+
+        // 공중 체공 시간 측정
+        if(isGrounded)
+            airborneTimer = 0f;
+        else
+            airborneTimer += Time.deltaTime;
 
         UpdateTimers();
         stateMachine.Update();
@@ -92,6 +102,11 @@ public class PlayerMovement : MonoBehaviour
     public bool CanJump()
     {
         return coyoteCounter > 0f && jumpBufferCounter > 0f;
+    }
+
+    public bool ShouldFall()
+    {
+        return airborneTimer >= fallGraceTime;
     }
 
     public void ConsumeJumpBuffer()

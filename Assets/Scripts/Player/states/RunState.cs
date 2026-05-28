@@ -23,6 +23,13 @@ public class RunState : IPlayerState
     {
         Move();
 
+        // ³ôÀº °÷ ³«ÇÏ ÆÇÁ¤
+        if(player.ShouldFall())
+        {
+            player.ChangeState(new FallState(player));
+            return;
+        }
+
         // Shift ¶¼¸é Walk·Î
         if (!player.IsRunning())
         {

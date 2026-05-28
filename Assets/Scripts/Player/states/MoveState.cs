@@ -22,6 +22,13 @@ public class MoveState : IPlayerState
     {
         Move();
 
+        // 높은 곳에서 떨어질 경우 - FallState 진입
+        if(player.ShouldFall())
+        {
+            player.ChangeState(new FallState(player));
+            return;
+        }
+
         // Idle 전환
         if (!player.HasMoveInput())
         {
