@@ -284,6 +284,13 @@ Hard Landing 시 더 강하게 적용.
 
 ---
 
+### Walking down Falling
+
+걸어서 일정 높이 이상에서 떨어 질 때, 낙하 모션 재생
+* When walking and falling from a certain height or higher, play the fall motion
+
+---
+
 # 📂 Project Structure
 
 ```
