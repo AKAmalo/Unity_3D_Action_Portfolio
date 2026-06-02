@@ -77,6 +77,12 @@ public class MoveState : IPlayerState
         Vector3 moveDir = forward * input.y + right * input.x;
         moveDir.Normalize();
 
+        // 경사면 이동 보정
+        if(player.OnSlope())
+        {
+            moveDir = Vector3.ProjectOnPlane(moveDir, player.GetSlopeNormal()).normalized;
+        }
+
         Vector3 velocity = rb.velocity;
 
         float speedMultiper = player.GetMoveSpeedMultiplier();

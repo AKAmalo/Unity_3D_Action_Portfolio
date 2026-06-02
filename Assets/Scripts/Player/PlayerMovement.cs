@@ -20,6 +20,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform modelRoot;
     [SerializeField] private Animator animator;
 
+    // Slope Movement
+    [SerializeField] private float maxSlopeAngle = 45f; // 최대 경사각
+    private RaycastHit slopeHit;
+    private bool isStepping = false; // 계단 오르기 중인지 여부
+
     // Step Climb 설정값
     private CapsuleCollider capsuleCollider;
     [SerializeField] private float maxStepHeight = 0.4f; // 실제 올라갈 수 있는 최대 높이
@@ -74,6 +79,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         StepClimb();
+        StickToSlope();
     }
 
     private void UpdateTimers()
@@ -222,6 +228,29 @@ public class PlayerMovement : MonoBehaviour
         return modelRoot;
     }
 
+    public bool IsStepping()
+    {
+               return isStepping;
+    }
+
+    // 경사면 체크
+    public bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 1.5f, groundLayer))
+        {
+            float angle  = Vector3.Angle(slopeHit.normal, Vector3.up);
+
+            return angle > 0f && angle <= maxSlopeAngle;
+        }
+        return false;
+    }
+
+    // 현재 경사면 Normal 반환
+    public Vector3 GetSlopeNormal()
+    {
+        return slopeHit.normal;
+    }
+
     // 바닥 체크
     private bool CheckGrounded()
     {
@@ -242,6 +271,8 @@ public class PlayerMovement : MonoBehaviour
     // 자동 계단 오르기 기능
     private void StepClimb()
     {
+        isStepping = false; // 매 프레임마다 초기화
+
         if (!HasMoveInput() || !isGrounded)    // 이동 입력 없거나 공중에서는 실행 X
             return;
 
@@ -277,13 +308,28 @@ public class PlayerMovement : MonoBehaviour
             if (surfaceAngle > maxStepAngle)
                 return;
 
-            // 부드러운 계단 오르기
-       //     Vector3 stepUp = Vector3.up * maxStepHeight;
-       //     rb.MovePosition(rb.position + stepUp * Time.fixedDeltaTime * 8f);
+            isStepping = true;
 
             Vector3 stepMove = (Vector3.up * maxStepHeight) + (moveDir * 0.08f);
             rb.MovePosition(rb.position + stepMove * Time.fixedDeltaTime * 8f);
         }
+    }
+
+    private void StickToSlope()
+    {
+        if(!isGrounded)
+            return;
+
+        if(isStepping)   // 계단 오르는 중에는 경사면 밀착 기능 비활성화
+            return;
+
+        if (!OnSlope())
+            return;
+
+        if(rb.velocity.y > 0f)
+            return;
+
+        rb.AddForce(Vector3.down * 30f, ForceMode.Acceleration);
     }
 
     private void UpdateAnimation()

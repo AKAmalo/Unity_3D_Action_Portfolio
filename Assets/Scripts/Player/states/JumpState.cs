@@ -68,6 +68,11 @@ public class JumpState : IPlayerState
         Vector3 moveDir = forward * input.y + right * input.x;
         moveDir.Normalize();
 
+        if (player.OnSlope())
+        {
+            moveDir = Vector3.ProjectOnPlane(moveDir, player.GetSlopeNormal()).normalized;
+        }
+
         Vector3 velocity = rb.velocity;
 
         // 공중에서는 영향 감소

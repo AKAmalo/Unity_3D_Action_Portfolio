@@ -85,6 +85,11 @@ public class FallState : IPlayerState
         Vector3 moveDir = forward * input.y + right * input.x;
         moveDir.Normalize();
 
+        if(player.OnSlope())
+        {
+            moveDir = Vector3.ProjectOnPlane(moveDir, player.GetSlopeNormal()).normalized;
+        }
+
         Vector3 velocity = rb.velocity;
 
         float airControl = 0.3f;
