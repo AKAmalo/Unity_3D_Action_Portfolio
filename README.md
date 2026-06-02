@@ -225,7 +225,7 @@ else
 * 카메라 강한 임팩트
 * 이동 속도 점진 회복
 
-### ▶ 추가 개선 (이번 작업)
+### ▶ 추가 개선
 
 * Hard Landing 중 **점프 입력 차단**
 * Jump Buffer가 Landing 상태를 무시하지 않도록 제어
@@ -288,6 +288,17 @@ Hard Landing 시 더 강하게 적용.
 
 걸어서 일정 높이 이상에서 떨어 질 때, 낙하 모션 재생
 * When walking and falling from a certain height or higher, play the fall motion
+
+---
+
+### Slope System
+
+경사면 이동 시, 해당 경사 기울기에 맞게 캐릭터 이동 방향 조정
+* When moving on a slope, adjust the character's movement direction to match the slope gradient.
+
+### ▶ 추가 개선 사항
+경사면에 올라 서 있을 때, 미끄러지지 않고 그 자리에 서 있게 수정필요
+* Needs modification so that it stays in place without slipping when standing on a slope.
 
 ---
 
