@@ -285,8 +285,10 @@ Hard Landing 시 더 강하게 적용.
 ### ▶ 추가 개선 사항
 계단 턱을 넘어갈 때 과도하게 튀어오르는 현상 수정필요
 * The excessive bouncing when going over stair ledges needs to be fixed.
-├ 기존 BoxCollider를 인식해 이동하는 방식 대신 RampCollider를 씌워 실제 물리적 이동은 경사면과 같은 방식으로 변경
-  * Instead of the existing method of movement based on BoxCollider recognition, a RampCollider is applied to change the actual physical movement to behave like a slope.
+      │
+      ▼
+기존 BoxCollider를 인식해 이동하는 방식 대신 RampCollider를 씌워 실제 물리적 이동은 경사면과 같은 방식으로 변경
+* Instead of the existing method of movement based on BoxCollider recognition, a RampCollider is applied to change the actual physical movement to behave like a slope.
 
 ---
 
@@ -305,8 +307,10 @@ Hard Landing 시 더 강하게 적용.
 ### ▶ 추가 개선 사항
 경사면에 올라 서 있을 때, 미끄러지지 않고 그 자리에 서 있게 수정필요
 * Needs modification so that it stays in place without slipping when standing on a slope.
- ├ 각 구조물에 Physical material을 생성해 수치를 입력하여 적용
-   * Create a physical material for each structure and apply it by entering values.
+      │
+      ▼
+각 구조물에 Physical material을 생성해 수치를 입력하여 적용
+* Create a physical material for each structure and apply it by entering values.
 
 ---
 
