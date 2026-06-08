@@ -280,15 +280,7 @@ Hard Landing 시 더 강하게 적용.
 ### Step Climb System
 
 계단 및 턱 자동 오르기 기능 구현
-* working on automatic stair/step climbing system
-
-### ▶ 추가 개선 사항
-계단 턱을 넘어갈 때 과도하게 튀어오르는 현상 수정필요
-* The excessive bouncing when going over stair ledges needs to be fixed.
-      │
-      ▼
-기존 BoxCollider를 인식해 이동하는 방식 대신 RampCollider를 씌워 실제 물리적 이동은 경사면과 같은 방식으로 변경
-* Instead of the existing method of movement based on BoxCollider recognition, a RampCollider is applied to change the actual physical movement to behave like a slope.
+* working on automatic stair/step climbing syste
 
 ---
 
@@ -303,15 +295,7 @@ Hard Landing 시 더 강하게 적용.
 
 경사면 이동 시, 해당 경사 기울기에 맞게 캐릭터 이동 방향 조정
 * When moving on a slope, adjust the character's movement direction to match the slope gradient.
-
-### ▶ 추가 개선 사항
-경사면에 올라 서 있을 때, 미끄러지지 않고 그 자리에 서 있게 수정필요
-* Needs modification so that it stays in place without slipping when standing on a slope.
-      │
-      ▼
-각 구조물에 Physical material을 생성해 수치를 입력하여 적용
-* Create a physical material for each structure and apply it by entering values.
-
+* 
 ---
 
 # 📂 Project Structure
@@ -500,6 +484,28 @@ Jump Buffer가 Landing 상태까지 유지됨
 해결
 
 * IdleState에서 이동 안 할 때 수평이동값을 없애는 조치
+
+---
+
+### 문제 10: 계단 턱을 넘어갈 때 과도하게 튀어오르는 현상
+
+원인
+계단의 각 층의 BoxCollider와 플레이어의 Collider의 충돌로 인해 발생
+
+해결
+
+* 기존 BoxCollider를 인식해 이동하는 방식 대신 RampCollider를 씌워 실제 물리적 이동은 경사면과 같은 방식으로 변경
+
+---
+
+### 문제 11: 경사면에 올라 서 있을 때, 미끄러지는 현상
+
+원인
+물리적 마찰 수치가 없어서 미끄러짐 발생
+
+해결
+
+* 각 구조물에 Physical material을 생성해 수치를 입력하여 적용
 
 ---
 
