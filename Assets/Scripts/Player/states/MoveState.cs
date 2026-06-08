@@ -23,7 +23,7 @@ public class MoveState : IPlayerState
         Move();
 
         // 높은 곳에서 떨어질 경우 - FallState 진입
-        if(player.ShouldFall())
+        if (player.ShouldFall())
         {
             player.ChangeState(new FallState(player));
             return;
@@ -49,11 +49,6 @@ public class MoveState : IPlayerState
             player.ChangeState(new JumpState(player));
             return;
         }
-
-        float speed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float normalizedSpeed = speed / player.RunSpeed;
-
-        player.GetAnimator().SetFloat("Speed", normalizedSpeed);
     }
 
     public void Exit()

@@ -27,7 +27,7 @@ public class FallState : IPlayerState
     public void Update()
     {
         // Fall Gravity 강화
-        if(rb.velocity.y < 0f)
+        if (rb.velocity.y < 0f)
         {
             rb.velocity += Vector3.up * Physics.gravity.y * (fallGravityMultiplier - 1f) * Time.deltaTime;
         }
@@ -85,7 +85,8 @@ public class FallState : IPlayerState
         Vector3 moveDir = forward * input.y + right * input.x;
         moveDir.Normalize();
 
-        if(player.OnSlope())
+        // 경사면 이동 보정
+        if (player.OnSlope())
         {
             moveDir = Vector3.ProjectOnPlane(moveDir, player.GetSlopeNormal()).normalized;
         }

@@ -15,8 +15,7 @@ public class RunState : IPlayerState
 
     public void Enter()
     {
-        // Run 애니메이션 진입
-        player.GetAnimator().SetFloat("Speed", 1f);
+       
     }
 
     public void Update()
@@ -24,7 +23,7 @@ public class RunState : IPlayerState
         Move();
 
         // 높은 곳 낙하 판정
-        if(player.ShouldFall())
+        if (player.ShouldFall())
         {
             player.ChangeState(new FallState(player));
             return;

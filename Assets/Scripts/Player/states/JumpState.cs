@@ -34,7 +34,7 @@ public class JumpState : IPlayerState
         AirMove();
 
         // Varible Jump (Jump Cut)
-        if (input.JumpHold && rb.velocity.y > 0f)
+        if (!input.JumpHold && rb.velocity.y > 0f)
         {
             // 점프 높이 줄이기
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, rb.velocity.z);
@@ -68,6 +68,7 @@ public class JumpState : IPlayerState
         Vector3 moveDir = forward * input.y + right * input.x;
         moveDir.Normalize();
 
+        // 경사면 이동 보정
         if (player.OnSlope())
         {
             moveDir = Vector3.ProjectOnPlane(moveDir, player.GetSlopeNormal()).normalized;

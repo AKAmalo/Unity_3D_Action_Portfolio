@@ -12,11 +12,14 @@ public class PlayerMovement : MonoBehaviour
     private bool canRotate = true;
     private float rotateSpeed = 360f;
     private float moveSpeedMultiplier = 1f;
+    private LayerMask groundCheckMask;
 
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float runSpeed = 8f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask slopeLayer;
+    [SerializeField] private LayerMask stairRampLayer;
     [SerializeField] private Transform modelRoot;
     [SerializeField] private Animator animator;
 
@@ -26,10 +29,11 @@ public class PlayerMovement : MonoBehaviour
     private bool isStepping = false; // 계단 오르기 중인지 여부
 
     // Step Climb 설정값
-    private CapsuleCollider capsuleCollider;
-    [SerializeField] private float maxStepHeight = 0.4f; // 실제 올라갈 수 있는 최대 높이
+ /*   private CapsuleCollider capsuleCollider;
+    [SerializeField] private float maxStepHeight = 0.15f; // 실제 올라갈 수 있는 최대 높이
     [SerializeField] private float stepCheckDistance = 0.5f; // 계단 감지 거리
     [SerializeField] private float maxStepAngle = 45f; // 벽 판정 각도 제한
+  */
 
     public float MoveSpeed => moveSpeed;
     public float RunSpeed => runSpeed;
@@ -51,12 +55,14 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         input = GetComponent<PlayerInputController>();
-        capsuleCollider = GetComponent<CapsuleCollider>();
+    //    capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
 
     void Start()
     {
+        groundCheckMask = groundLayer | slopeLayer | stairRampLayer;
+
         stateMachine = new PlayerStateMachine();
         stateMachine.ChangeState(new IdleState(this));
     }
@@ -78,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        StepClimb();
+   //     StepClimb();
         StickToSlope();
     }
 
@@ -233,10 +239,25 @@ public class PlayerMovement : MonoBehaviour
                return isStepping;
     }
 
+    // 계단 Ramp 체크
+    public bool IsOnStairRamp()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.2f;
+
+        bool hit = Physics.Raycast(origin, Vector3.down, 1.5f, stairRampLayer);
+
+        return hit;
+    }
+
     // 경사면 체크
     public bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 1.5f, groundLayer))
+        if (IsOnStairRamp())   // 계단 Ramp 위에서는 경사면 판정 비활성화
+        {
+            return false;
+        }
+
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 1.5f, slopeLayer))
         {
             float angle  = Vector3.Angle(slopeHit.normal, Vector3.up);
 
@@ -261,16 +282,21 @@ public class PlayerMovement : MonoBehaviour
 
         RaycastHit hit;
 
-        bool grounded = Physics.SphereCast(origin, sphereRadius, Vector3.down, out hit, checkDistance, groundLayer);
+        bool grounded = Physics.SphereCast(origin, sphereRadius, Vector3.down, out hit, checkDistance, groundCheckMask);
 
 
         return grounded;
-        // return Physics.Raycast(origin, Vector3.down, 1.2f, groundLayer);
     }
 
     // 자동 계단 오르기 기능
-    private void StepClimb()
+ /*  private void StepClimb()
     {
+        if(!HasMoveInput())
+        {
+            isStepping = false;
+            return;
+        }
+
         isStepping = false; // 매 프레임마다 초기화
 
         if (!HasMoveInput() || !isGrounded)    // 이동 입력 없거나 공중에서는 실행 X
@@ -283,8 +309,11 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 horizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        if (horizontalVel.magnitude < 0.1f) // 너무 느리면 실행 X
+        if (horizontalVel.magnitude < 0.3f) // 너무 느리면 실행 X
+        {
+            isStepping = false;
             return;
+        }
 
         // 캡슐 하단 위치 계산
         float colliderBottom = transform.position.y + capsuleCollider.center.y - (capsuleCollider.height * 0.5f);
@@ -301,6 +330,7 @@ public class PlayerMovement : MonoBehaviour
         // 계단 판정 - 아래 막혀있고, 위는 비어있어야함.
         if (lowerHit && !upperHit)
         {
+            Debug.Log("STEP LOG");
             // 벽 판정 방지 - 표면 각도 검사
             float surfaceAngle = Vector3.Angle(lowerHitInfo.normal, Vector3.up);
 
@@ -313,15 +343,24 @@ public class PlayerMovement : MonoBehaviour
             Vector3 stepMove = (Vector3.up * maxStepHeight) + (moveDir * 0.08f);
             rb.MovePosition(rb.position + stepMove * Time.fixedDeltaTime * 8f);
         }
-    }
+    }*/
 
     private void StickToSlope()
     {
         if(!isGrounded)
             return;
 
-        if(isStepping)   // 계단 오르는 중에는 경사면 밀착 기능 비활성화
+        if(IsOnStairRamp())   // 계단 Ramp 위에서는 경사면 밀착 기능 비활성화
             return;
+
+        if (isStepping)   // 계단 오르는 중에는 경사면 밀착 기능 비활성화
+        {
+            Vector3 velocity = rb.velocity;
+            velocity.y = 0f;
+            rb.velocity = velocity;
+
+            return;
+        }
 
         if (!OnSlope())
             return;
@@ -330,18 +369,26 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         rb.AddForce(Vector3.down * 30f, ForceMode.Acceleration);
+
+        if(!HasMoveInput())
+        {
+            Vector3 velocity = rb.velocity;
+
+            velocity.x = 0f;
+            velocity.z = 0f;
+
+            rb.velocity = velocity;
+        }
     }
 
     private void UpdateAnimation()
     {
         float speed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float maxSpeed = IsRunning() ? runSpeed : moveSpeed;
-        float normalizedSpeed = speed / maxSpeed;
+        float normalizedSpeed = Mathf.Clamp01(speed / runSpeed);
 
+        // 항상 RunSpeed 기준으로 정규화 - Walk = 약 0.6 - Run = 약 1.0
         animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
-
         animator.SetBool("IsGrounded", isGrounded);
-
         // 낙하 상태 자동 처리
         animator.SetBool("IsFalling", !isGrounded && rb.velocity.y < 0f);
     }
