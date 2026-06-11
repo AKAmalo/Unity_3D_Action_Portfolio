@@ -43,10 +43,18 @@ public class MoveState : IPlayerState
             return;
         }
 
-        if(player.CanJump())
+        // Jump 전환
+        if (player.CanJump())
         {
             player.ConsumeJumpBuffer();
             player.ChangeState(new JumpState(player));
+            return;
+        }
+
+        // Dash 전환
+        if (player.DashPressed() && player.CanDash())
+        {
+           player.ChangeState(new DashState(player));
             return;
         }
     }

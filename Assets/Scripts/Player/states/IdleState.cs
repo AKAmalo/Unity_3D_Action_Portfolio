@@ -32,6 +32,13 @@ public class IdleState : IPlayerState
             player.ChangeState(new JumpState(player));
             return;
         }
+
+        // Dash ÀüÈ¯
+        if (player.DashPressed() && player.CanDash())
+        {
+            player.ChangeState(new DashState(player));
+            return;
+        }
     }
 
     public void Exit()

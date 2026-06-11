@@ -23,20 +23,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform modelRoot;
     [SerializeField] private Animator animator;
 
+    // Dash
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashCooldown = 1f;
+    private float dashCooldownTimer = 0f;
+
     // Slope Movement
     [SerializeField] private float maxSlopeAngle = 45f; // 최대 경사각
     private RaycastHit slopeHit;
     private bool isStepping = false; // 계단 오르기 중인지 여부
 
-    // Step Climb 설정값
- /*   private CapsuleCollider capsuleCollider;
-    [SerializeField] private float maxStepHeight = 0.15f; // 실제 올라갈 수 있는 최대 높이
-    [SerializeField] private float stepCheckDistance = 0.5f; // 계단 감지 거리
-    [SerializeField] private float maxStepAngle = 45f; // 벽 판정 각도 제한
-  */
-
     public float MoveSpeed => moveSpeed;
     public float RunSpeed => runSpeed;
+    public float DashSpeed => dashSpeed;
     public float hardLandingThreshold = -7f;
 
     // === Coyote Time ===
@@ -55,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         input = GetComponent<PlayerInputController>();
-    //    capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
 
@@ -80,11 +78,16 @@ public class PlayerMovement : MonoBehaviour
         UpdateTimers();
         stateMachine.Update();
         UpdateAnimation();
+
+        // Dash 쿨다운 타이머 업데이트
+        if (dashCooldownTimer > 0f)
+        {
+            dashCooldownTimer -= Time.deltaTime;
+        }
     }
 
     void FixedUpdate()
     {
-   //     StepClimb();
         StickToSlope();
     }
 
@@ -127,6 +130,21 @@ public class PlayerMovement : MonoBehaviour
         coyoteCounter = 0f;
     }
 
+    public bool CanDash()  // 대쉬 가능 여부 체크
+    {
+        return dashCooldownTimer <= 0f;
+    }
+
+    public bool IsDashing()
+    {
+        return stateMachine.CurrentState is DashState;
+    }
+
+    public void StartDashCooldown()  // 쿨다운 시작 함수, 대쉬 사용 시 호출
+    {
+        dashCooldownTimer = dashCooldown;
+    }
+
     // === 상태에서 호출할 함수 ===
     public Rigidbody GetRigidbody()
     {
@@ -143,19 +161,24 @@ public class PlayerMovement : MonoBehaviour
         return input.MoveInput;
     }
 
-    public bool IsGrounded()
-    {
-        return isGrounded;
-    }
-
     public bool IsRunning()
     {
         return input.RunPressed;
     }
 
+    public bool DashPressed()   // 입력 접근
+    {
+        return input.ConsumeDash();
+    }
+
     public void ChangeState(IPlayerState newState)
     {
         stateMachine.ChangeState(newState);
+    }
+
+    public bool IsGrounded()
+    {
+        return isGrounded;
     }
 
     // 점프
@@ -236,7 +259,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsStepping()
     {
-               return isStepping;
+        return isStepping;
     }
 
     // 계단 Ramp 체크
@@ -288,64 +311,7 @@ public class PlayerMovement : MonoBehaviour
         return grounded;
     }
 
-    // 자동 계단 오르기 기능
- /*  private void StepClimb()
-    {
-        if(!HasMoveInput())
-        {
-            isStepping = false;
-            return;
-        }
-
-        isStepping = false; // 매 프레임마다 초기화
-
-        if (!HasMoveInput() || !isGrounded)    // 이동 입력 없거나 공중에서는 실행 X
-            return;
-
-        if(rb.velocity.y > 0.1f)   // 점프 상승 중이면 실행 금지
-            return;
-
-        Vector3 moveDir = GetHorizontalMoveDirection();
-
-        Vector3 horizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-        if (horizontalVel.magnitude < 0.3f) // 너무 느리면 실행 X
-        {
-            isStepping = false;
-            return;
-        }
-
-        // 캡슐 하단 위치 계산
-        float colliderBottom = transform.position.y + capsuleCollider.center.y - (capsuleCollider.height * 0.5f);
-        // 아래 감지 시작점
-        Vector3 lowerOrigin = new Vector3(transform.position.x, colliderBottom + 0.05f, transform.position.z);
-        // 위 감지 시작점
-        Vector3 upperOrigin = lowerOrigin + Vector3.up * maxStepHeight;
-
-        // 아래 레이 - 장애물 있는지 확인
-        bool lowerHit = Physics.Raycast(lowerOrigin, moveDir, out RaycastHit lowerHitInfo, stepCheckDistance, groundLayer);
-        // 위 레이 - 공간 비어있는지 확인
-        bool upperHit = Physics.Raycast(upperOrigin, moveDir, stepCheckDistance, groundLayer);
-
-        // 계단 판정 - 아래 막혀있고, 위는 비어있어야함.
-        if (lowerHit && !upperHit)
-        {
-            Debug.Log("STEP LOG");
-            // 벽 판정 방지 - 표면 각도 검사
-            float surfaceAngle = Vector3.Angle(lowerHitInfo.normal, Vector3.up);
-
-            // 너무 가파르면 벽으로 간주
-            if (surfaceAngle > maxStepAngle)
-                return;
-
-            isStepping = true;
-
-            Vector3 stepMove = (Vector3.up * maxStepHeight) + (moveDir * 0.08f);
-            rb.MovePosition(rb.position + stepMove * Time.fixedDeltaTime * 8f);
-        }
-    }*/
-
-    private void StickToSlope()
+    public void StickToSlope()
     {
         if(!isGrounded)
             return;
@@ -362,15 +328,16 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        if (!OnSlope())
+        if (!OnSlope() && !IsDashing())
             return;
 
         if(rb.velocity.y > 0f)
             return;
 
-        rb.AddForce(Vector3.down * 30f, ForceMode.Acceleration);
+        float stickForce = IsDashing() ? 80f : 30f;
+        rb.AddForce(Vector3.down * stickForce, ForceMode.Acceleration);
 
-        if(!HasMoveInput())
+        if(!HasMoveInput() && !IsDashing())
         {
             Vector3 velocity = rb.velocity;
 
@@ -379,6 +346,19 @@ public class PlayerMovement : MonoBehaviour
 
             rb.velocity = velocity;
         }
+    }
+
+    public bool TryGetGroundNormal(out Vector3 normal)
+    {
+        RaycastHit hit;
+
+        if(Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 3f, groundCheckMask))
+        {
+            normal = hit.normal;
+            return true;
+        }
+        normal = Vector3.up;
+        return false;
     }
 
     private void UpdateAnimation()

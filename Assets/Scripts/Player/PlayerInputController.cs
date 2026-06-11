@@ -9,12 +9,23 @@ public class PlayerInputController : MonoBehaviour
     public bool JumpPressed { get; private set; }
     public bool JumpHold { get; private set; }
     public bool RunPressed { get; private set; }
+    public bool DashPressed { get; private set; }
 
     public bool ConsumeJump()
     {
         if (JumpPressed)
         {
             JumpPressed = false;
+            return true;
+        }
+        return false;
+    }
+
+    public bool ConsumeDash()
+    {
+        if (DashPressed)
+        {
+            DashPressed = false;
             return true;
         }
         return false;
@@ -44,5 +55,11 @@ public class PlayerInputController : MonoBehaviour
             Input.GetAxis("Mouse X"),
             Input.GetAxis("Mouse Y")
             );
+
+        // ´ë½¬
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            DashPressed = true;
+        }
     }
 }
