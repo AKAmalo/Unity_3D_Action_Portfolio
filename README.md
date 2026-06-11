@@ -295,7 +295,22 @@ Hard Landing 시 더 강하게 적용.
 
 경사면 이동 시, 해당 경사 기울기에 맞게 캐릭터 이동 방향 조정
 * When moving on a slope, adjust the character's movement direction to match the slope gradient.
-* 
+
+---
+
+### Dash System
+
+Ctrl 키를 입력하면 앞으로 일정 거리 돌진
+* Press the Ctrl key to dash forward a certain distance
+
+### ▶ 추가 개선
+
+경사면에서 바닥으로 Dash로 내려올 때, 플레이어 기울기 초기화 필요
+* When dashing down from a slope to the bottom, the player needs to reset their tilt.
+
+높은 높이에서 Dash로 떨어 질 때, 낙하 모션 재생 필요
+* When falling from a high height with Dash, fall motion playback required
+
 ---
 
 # 📂 Project Structure
