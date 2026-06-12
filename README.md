@@ -305,9 +305,6 @@ Ctrl 키를 입력하면 앞으로 일정 거리 돌진
 
 ### ▶ 추가 개선
 
-경사면에서 바닥으로 Dash로 내려올 때, 플레이어 기울기 초기화 필요
-* When dashing down from a slope to the bottom, the player needs to reset their tilt.
-
 높은 높이에서 Dash로 떨어 질 때, 낙하 모션 재생 필요
 * When falling from a high height with Dash, fall motion playback required
 
@@ -521,6 +518,17 @@ Jump Buffer가 Landing 상태까지 유지됨
 해결
 
 * 각 구조물에 Physical material을 생성해 수치를 입력하여 적용
+
+---
+
+### 문제 12: 경사면에서 바닥으로 Dash로 내려올 때, 기울어진 채 내려오는 현상
+
+원인
+DashState에서 떨어 질 때, 기울기 변화를 감지해 주는 함수 없음
+
+해결
+
+* Playermovement.cs에 AlignToGround() 함수 생성해, DashState.Update()에 적용
 
 ---
 
