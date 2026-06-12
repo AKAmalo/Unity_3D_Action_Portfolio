@@ -86,6 +86,7 @@ public class LandState : IPlayerState
 
     public void Exit()
     {
+        player.ResetSlopeRotation();
         player.SetCanRotate(true);
         player.SetRotateSpeed(360f);
         player.SetMoveSpeedMultiplier(1f);

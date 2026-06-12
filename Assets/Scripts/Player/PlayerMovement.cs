@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal.Internal;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -348,6 +349,60 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void ResetSlopeRotation()
+    {
+        Vector3 forward = modelRoot.forward;
+        forward.y = 0f;
+
+        if(forward.sqrMagnitude < 0.001f)
+        {
+            forward = transform.forward;
+        }
+
+        modelRoot.rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+    }
+
+    // Dash 중에도 경사면 기울기 유지
+    public void AlignToGround()
+    {
+        // 공중이면 기울기 제거
+        if (!IsGrounded())
+        {
+            Vector3 forward = modelRoot.forward;
+            forward.y = 0f;
+
+            if (forward.sqrMagnitude < 0.001f)
+            {
+                forward = transform.forward;
+            }
+
+            Quaternion uprightRotation =
+                Quaternion.LookRotation(forward.normalized, Vector3.up);
+
+            modelRoot.rotation = Quaternion.Slerp(
+                modelRoot.rotation,
+                uprightRotation,
+                12f * Time.deltaTime
+                );
+
+            return;
+        }
+
+        // 지면 위에서는 기존 경사면 정렬
+        if (!TryGetGroundNormal(out Vector3 normal))
+            return;
+
+        Vector3 slopeForward = Vector3.ProjectOnPlane(modelRoot.forward, normal).normalized;
+
+        Quaternion targetRotation = Quaternion.LookRotation(slopeForward, normal);
+
+        modelRoot.rotation = Quaternion.Slerp(
+            modelRoot.rotation,
+            targetRotation,
+            10f * Time.deltaTime
+            );
+    }
+
     public bool TryGetGroundNormal(out Vector3 normal)
     {
         RaycastHit hit;
@@ -369,7 +424,5 @@ public class PlayerMovement : MonoBehaviour
         // 항상 RunSpeed 기준으로 정규화 - Walk = 약 0.6 - Run = 약 1.0
         animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
         animator.SetBool("IsGrounded", isGrounded);
-        // 낙하 상태 자동 처리
-        animator.SetBool("IsFalling", !isGrounded && rb.velocity.y < 0f);
     }
 }

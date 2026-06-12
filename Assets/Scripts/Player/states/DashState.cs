@@ -64,7 +64,28 @@ public class DashState : IPlayerState
 
         Vector3 velocity = moveDir * player.DashSpeed;
 
-        rb.velocity = velocity;
+        // 공중에서 기존 중력 속도 유지
+        if (!player.IsGrounded())
+        {
+            velocity.y = rb.velocity.y;
+        }
+        else
+        {
+            // 지면에서는 Dash가 수직속도를 만들지 못하게 함
+            velocity.y = Mathf.Min(rb.velocity.y, 0f);
+        }
+
+            rb.velocity = velocity;
+
+        // 경사면 기울기 유지
+        player.AlignToGround();
+
+        // 대쉬 종료 후 공중이면 Fall
+        if (!player.IsGrounded())
+        {
+            player.ChangeState(new FallState(player));
+            return;
+        }
 
         if (timer >= dashDuration)
         {
@@ -82,9 +103,5 @@ public class DashState : IPlayerState
     public void Exit()
     {
         player.SetCanRotate(true); // 대시 종료 후 회전 허용
-
-        Vector3 velocity = rb.velocity;
-        velocity.y = 0f;    // Dsah 종료 시 수직 속도 제거
-        rb.velocity = velocity;
     }
 }

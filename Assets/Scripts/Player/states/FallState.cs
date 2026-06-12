@@ -19,6 +19,8 @@ public class FallState : IPlayerState
 
     public void Enter()
     {
+        player.ResetSlopeRotation();
+
         // 낙하 애니메이션 진입
         player.GetAnimator().SetBool("IsFalling", true);
         maxFallSpeed = 0f;
