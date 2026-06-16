@@ -303,11 +303,6 @@ Hard Landing 시 더 강하게 적용.
 Ctrl 키를 입력하면 앞으로 일정 거리 돌진
 * Press the Ctrl key to dash forward a certain distance
 
-### ▶ 추가 개선
-
-높은 높이에서 Dash로 떨어 질 때, 낙하 모션 재생 필요
-* When falling from a high height with Dash, fall motion playback required
-
 ---
 
 # 📂 Project Structure
@@ -529,6 +524,18 @@ DashState에서 떨어 질 때, 기울기 변화를 감지해 주는 함수 없�
 해결
 
 * Playermovement.cs에 AlignToGround() 함수 생성해, DashState.Update()에 적용
+
+---
+
+### 문제 13: 높은 높이에서 Dash로 떨어 질 때, 낙하 모션이 없는 현상
+
+원인
+Animator에서 Dash -> Falling 연결이 없음
+
+해결
+
+* Dash -> Falling을 IsFalling==true 조건을 추가 하여 연걸
+* Dash -> Locomotion 에 Has Exit Time을 OFF
 
 ---
 
