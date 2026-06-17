@@ -20,7 +20,13 @@ public class IdleState : IPlayerState
 
     public void Update()
     {
-        if(player.HasMoveInput())
+        if(player.ShouldFall())
+        {
+            player.ChangeState(new FallState(player));
+            return;
+        }
+
+        if (player.HasMoveInput())
         {
             player.ChangeState(new MoveState(player));
             return;
