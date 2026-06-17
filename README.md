@@ -531,11 +531,15 @@ DashState에서 떨어 질 때, 기울기 변화를 감지해 주는 함수 없�
 
 원인
 Animator에서 Dash -> Falling 연결이 없음
+IdleState에 IsFalling 확인하는 함수 누락
+Animator에서 Locomotion -> Falling의 Has Exit Time가 true
 
 해결
 
 * Dash -> Falling을 IsFalling==true 조건을 추가 하여 연걸
 * Dash -> Locomotion 에 Has Exit Time을 OFF
+* IldeState에 IsFalling 감지함수 추가
+* Animator에서 Locomotion -> Falling의 Has Exit Time을 OFF
 
 ---
 
