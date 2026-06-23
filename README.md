@@ -23,6 +23,7 @@
 | Move   | WASD  |
 | Run    | Shift |
 | Jump   | Space |
+| Dash   | Ctrl  |
 | Camera | Mouse |
 
 ---
