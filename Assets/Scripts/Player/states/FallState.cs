@@ -47,7 +47,7 @@ public class FallState : IPlayerState
         {
             Debug.Log("MaxFallSpeed: " +  maxFallSpeed);
 
-            if (maxFallSpeed < player.hardLandingThreshold)
+            if (maxFallSpeed < player.HardLandingThreshold)
             {
                 Debug.Log(">>> HARD LANDING BRANCH");
                 // Hard Landing

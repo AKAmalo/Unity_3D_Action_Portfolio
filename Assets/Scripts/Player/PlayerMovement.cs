@@ -15,9 +15,9 @@ public class PlayerMovement : MonoBehaviour
     private float moveSpeedMultiplier = 1f;
     private LayerMask groundCheckMask;
 
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float runSpeed = 8f;
+    // Player Data
+    [SerializeField] private PlayerData playerData;
+
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask slopeLayer;
     [SerializeField] private LayerMask stairRampLayer;
@@ -25,8 +25,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Animator animator;
 
     // Dash
-    [SerializeField] private float dashSpeed = 15f;
-    [SerializeField] private float dashCooldown = 1f;
     private float dashCooldownTimer = 0f;
 
     // Slope Movement
@@ -34,27 +32,36 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool isStepping = false; // 계단 오르기 중인지 여부
 
-    public float MoveSpeed => moveSpeed;
-    public float RunSpeed => runSpeed;
-    public float DashSpeed => dashSpeed;
-    public float hardLandingThreshold = -7f;
+    // ScriptableObject 데이터 사용
+    public float MoveSpeed => playerData.moveSpeed;
+    public float RunSpeed => playerData.runSpeed;
+    public float DashSpeed => playerData.dashSpeed;
+    public float DashCooldown => playerData.dashCooldown;
+    public float JumpForce => playerData.jumpForce;
+    public float CoyoteTime => playerData.coyoteTime;
+    public float JumpBufferTime => playerData.jumpBufferTime;
+    public float FallGraceTime => playerData.fallGraceTime;
+    public float HardLandingThreshold => playerData.hardLandingThreshold;
 
     // === Coyote Time ===
-    [SerializeField] private float coyoteTime = 0.1f;
     private float coyoteCounter;
 
     // === Jump Buffer ===
-    [SerializeField] private float jumpBufferTime = 0.1f;
     private float jumpBufferCounter;
 
     // 공중 판정 확인 시간
-    [SerializeField] private float fallGraceTime = 0.12f;
     private float airborneTimer = 0f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         input = GetComponent<PlayerInputController>();
+
+        // ScrptableObject 연결 체크
+        if (playerData == null)
+        {
+            Debug.LogError("PlayerData가 연결되지 않았습니다.");
+        }
     }
 
 
@@ -71,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = CheckGrounded();
 
         // 공중 체공 시간 측정
-        if(isGrounded)
+        if (isGrounded)
             airborneTimer = 0f;
         else
             airborneTimer += Time.deltaTime;
@@ -96,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // Coyote Time
         if (isGrounded)
-            coyoteCounter = coyoteTime;
+            coyoteCounter = CoyoteTime;
         else
         {
             coyoteCounter -= Time.deltaTime;
@@ -106,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Jump Buffer
         if (input.ConsumeJump())
-            jumpBufferCounter = jumpBufferTime;
+            jumpBufferCounter = JumpBufferTime;
         else
         {
             jumpBufferCounter -= Time.deltaTime;
@@ -122,7 +129,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool ShouldFall()
     {
-        return airborneTimer >= fallGraceTime;
+        return airborneTimer >= FallGraceTime;
     }
 
     public void ConsumeJumpBuffer()
@@ -143,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void StartDashCooldown()  // 쿨다운 시작 함수, 대쉬 사용 시 호출
     {
-        dashCooldownTimer = dashCooldown;
+        dashCooldownTimer = DashCooldown;
     }
 
     // === 상태에서 호출할 함수 ===
@@ -186,7 +193,7 @@ public class PlayerMovement : MonoBehaviour
     public void Jump()
     {
         rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // 기존 Y속도 제거
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        rb.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
 
         isGrounded = false; // 점프 입력 받는 즉시 후 입력 차단
 
@@ -195,7 +202,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Rotate(Vector3 moveDir)
     {
-        if(!canRotate)
+        if (!canRotate)
         {
             return;
         }
@@ -246,7 +253,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        if(horizontalVelocity.sqrMagnitude > 0.01f)
+        if (horizontalVelocity.sqrMagnitude > 0.01f)
         {
             return horizontalVelocity.normalized;
         }
@@ -283,7 +290,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 1.5f, slopeLayer))
         {
-            float angle  = Vector3.Angle(slopeHit.normal, Vector3.up);
+            float angle = Vector3.Angle(slopeHit.normal, Vector3.up);
 
             return angle > 0f && angle <= maxSlopeAngle;
         }
@@ -314,10 +321,10 @@ public class PlayerMovement : MonoBehaviour
 
     public void StickToSlope()
     {
-        if(!isGrounded)
+        if (!isGrounded)
             return;
 
-        if(IsOnStairRamp())   // 계단 Ramp 위에서는 경사면 밀착 기능 비활성화
+        if (IsOnStairRamp())   // 계단 Ramp 위에서는 경사면 밀착 기능 비활성화
             return;
 
         if (isStepping)   // 계단 오르는 중에는 경사면 밀착 기능 비활성화
@@ -332,13 +339,13 @@ public class PlayerMovement : MonoBehaviour
         if (!OnSlope() && !IsDashing())
             return;
 
-        if(rb.velocity.y > 0f)
+        if (rb.velocity.y > 0f)
             return;
 
         float stickForce = IsDashing() ? 80f : 30f;
         rb.AddForce(Vector3.down * stickForce, ForceMode.Acceleration);
 
-        if(!HasMoveInput() && !IsDashing())
+        if (!HasMoveInput() && !IsDashing())
         {
             Vector3 velocity = rb.velocity;
 
@@ -354,7 +361,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 forward = modelRoot.forward;
         forward.y = 0f;
 
-        if(forward.sqrMagnitude < 0.001f)
+        if (forward.sqrMagnitude < 0.001f)
         {
             forward = transform.forward;
         }
@@ -407,7 +414,7 @@ public class PlayerMovement : MonoBehaviour
     {
         RaycastHit hit;
 
-        if(Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 3f, groundCheckMask))
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 3f, groundCheckMask))
         {
             normal = hit.normal;
             return true;
@@ -419,10 +426,26 @@ public class PlayerMovement : MonoBehaviour
     private void UpdateAnimation()
     {
         float speed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float normalizedSpeed = Mathf.Clamp01(speed / runSpeed);
+        float normalizedSpeed = Mathf.Clamp01(speed / RunSpeed);
 
         // 항상 RunSpeed 기준으로 정규화 - Walk = 약 0.6 - Run = 약 1.0
         animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
         animator.SetBool("IsGrounded", isGrounded);
+    }
+
+    // Debug HUD
+    // 현재 상태 이름 반환
+    public string GetCurrentStateName()
+    {
+        if (stateMachine.CurrentState == null)
+            return "None";
+
+        return stateMachine.CurrentState.GetType().Name;
+    }
+
+    // 현재 남은 Dash 쿨다운
+    public float GetDashCooldownRemaining()
+    {
+        return Mathf.Max(0f, dashCooldownTimer);
     }
 }
