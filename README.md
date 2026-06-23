@@ -123,6 +123,19 @@ camera.right * input.x
 
 ---
 
+## ScriptableObject 기반 PlayerData.cs 생성
+
+* PlayerData를 분리하여 유지보수 및 관리 용이
+
+---
+
+## Debug HUD 구현
+
+* Debug HUD로 플레이어 상태 정보를 항시 화면에 표시
+* 표시 내용 : State(플레이어 상태), Grounded 여부, Speed, Dash CD(CoolDown), Move Input(이동 방향)
+
+---
+
 # ⚙️ 구현 상세
 
 ## 이동 시스템
