@@ -198,6 +198,9 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = false; // 점프 입력 받는 즉시 후 입력 차단
 
         coyoteCounter = 0f;
+
+        // Event 발생
+        GameEvent.OnPlayerJump?.Invoke();
     }
 
     public void Rotate(Vector3 moveDir)

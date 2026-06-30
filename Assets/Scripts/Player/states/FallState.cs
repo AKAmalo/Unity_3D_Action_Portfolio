@@ -45,22 +45,25 @@ public class FallState : IPlayerState
         // 착지
         if (player.IsGrounded() && rb.velocity.y < 0f)
         {
-            Debug.Log("MaxFallSpeed: " +  maxFallSpeed);
+            //Debug.Log("MaxFallSpeed: " +  maxFallSpeed);
 
             if (maxFallSpeed < player.HardLandingThreshold)
             {
-                Debug.Log(">>> HARD LANDING BRANCH");
+                //Debug.Log(">>> HARD LANDING BRANCH");
                 // Hard Landing
                 player.GetAnimator().SetTrigger("HardLand");
                 player.ChangeState(new LandState(player, 0.8f, true));
             }
             else
             {
-                Debug.Log(">>> SOFT LANDING BRANCH");
+                //Debug.Log(">>> SOFT LANDING BRANCH");
                 // Soft Landing
                 player.GetAnimator().SetTrigger("SoftLand");
                 player.ChangeState(new LandState(player, 0.15f, false));
             }
+
+            // Land 이벤트 발생
+            GameEvent.OnPlayerLand?.Invoke();
 
             return;
         }

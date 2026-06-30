@@ -29,7 +29,7 @@ public class LandState : IPlayerState
 
         if (hardLanding)
         {
-            Debug.Log("LandState Enter -> HARD");
+            //Debug.Log("LandState Enter -> HARD");
             player.SetCanRotate(false); // HardLanding 카메라 회전 금지
             player.SetRotateSpeed(80f);
             player.SetMoveSpeedMultiplier(0.35f);
@@ -41,7 +41,7 @@ public class LandState : IPlayerState
         }
         else
         {
-            Debug.Log("LandState Enter -> SOFT");
+            //Debug.Log("LandState Enter -> SOFT");
             player.SetCanRotate(true); // SoftLanding 카메라 회전 허용
             player.SetRotateSpeed(360f);
             player.SetMoveSpeedMultiplier(0.7f);

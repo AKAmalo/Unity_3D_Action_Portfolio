@@ -49,6 +49,9 @@ public class DashState : IPlayerState
         player.SetCanRotate(false); // 대시 중 회전 방지
 
         player.GetAnimator().SetTrigger("Dash");
+
+        // Dash 이벤트 발생
+        GameEvent.OnPlayerDash?.Invoke();
     }
 
     public void Update()
