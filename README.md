@@ -136,6 +136,11 @@ camera.right * input.x
 
 ---
 
+## Event System 기반 생성
+
+* 플레이어 행동에 기반한 Event 관리 시스템
+
+---
 # ⚙️ 구현 상세
 
 ## 이동 시스템
