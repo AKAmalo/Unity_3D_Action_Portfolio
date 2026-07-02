@@ -1886,6 +1886,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1533660290}
   - component: {fileID: 1533660289}
+  - component: {fileID: 1533660291}
+  - component: {fileID: 1533660292}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1920,6 +1922,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1533660291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533660288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3113de77bc93eb34f95833888bf333db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolList:
+  - key: LandDust
+    prefab: {fileID: 6564482715156516528, guid: 6b715a66bc3d20f41b85590998498933,
+      type: 3}
+    count: 10
+--- !u!114 &1533660292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533660288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dddba3a1f410c3648a97d0eef9fd0926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 34474070}
 --- !u!1 &1552007167
 GameObject:
   m_ObjectHideFlags: 0
