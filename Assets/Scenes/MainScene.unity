@@ -1939,6 +1939,10 @@ MonoBehaviour:
     prefab: {fileID: 6564482715156516528, guid: 6b715a66bc3d20f41b85590998498933,
       type: 3}
     count: 10
+  - key: JumpDust
+    prefab: {fileID: 6564482715156516528, guid: b3011066b5269064a96882344784807b,
+      type: 3}
+    count: 10
 --- !u!114 &1533660292
 MonoBehaviour:
   m_ObjectHideFlags: 0

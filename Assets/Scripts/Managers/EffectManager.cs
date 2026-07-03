@@ -21,15 +21,32 @@ public class EffectManager : MonoBehaviour
     // Event 등록
     private void OnEnable()
     {
+        GameEvent.OnPlayerJump += PlayJumpDust;
         GameEvent.OnPlayerLand += PlayLandDust;
     }
 
     private void OnDisable()
     {
+        GameEvent.OnPlayerJump -= PlayJumpDust;
         GameEvent.OnPlayerLand -= PlayLandDust;
     }
 
-    // 착지 먼지
+    /// <summary>
+    /// 플레이어 점프 시 먼지 생성
+    /// </summary>
+    private void PlayJumpDust()
+    {
+        if (player == null)
+        {
+            Debug.LogWarning("Player가 연결되지 않았습니다.");
+            return;
+        }
+
+        SpawnEffect(
+                "JumpDust",
+                player.position + Vector3.down * 0.9f,
+                Quaternion.identity);
+    }
 
     /// <summary>
     /// 플레이어 착지 시 먼지 생성
@@ -43,15 +60,25 @@ public class EffectManager : MonoBehaviour
             return;
         }
 
-        PoolObject dust =
-            PoolManager.Instance.Spawn("LandDust");
+        // 공동 생성 함수를 사용하도록 변경
+        SpawnEffect(
+            "LandDust",
+            player.position + Vector3.down * 0.9f,
+            Quaternion.identity);
+    }
 
-        if (dust == null)
+    /// <summary>
+    /// Pool에서 이펙트를 꺼내 원하는 위치와 회전에 생성하는 공통 함수
+    /// 앞으로 모든 이펙트는 이 함수만 호출하면 됨.
+    /// </summary>
+    public void SpawnEffect(string key, Vector3 position, Quaternion rotation)
+    {
+        PoolObject effect = PoolManager.Instance.Spawn(key);
+
+        if (effect == null)
             return;
 
-        // 바닥에 붙도록 살짝 내림
-        dust.transform.position = player.position + Vector3.down * 0.9f;
-
-        dust.transform.rotation = Quaternion.identity;
+        effect.transform.position = position;
+        effect.transform.rotation = rotation;
     }
 }
