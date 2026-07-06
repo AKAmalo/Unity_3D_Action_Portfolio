@@ -23,12 +23,14 @@ public class EffectManager : MonoBehaviour
     {
         GameEvent.OnPlayerJump += PlayJumpDust;
         GameEvent.OnPlayerLand += PlayLandDust;
+        GameEvent.OnPlayerDash += PlayDashSmoke;
     }
 
     private void OnDisable()
     {
         GameEvent.OnPlayerJump -= PlayJumpDust;
         GameEvent.OnPlayerLand -= PlayLandDust;
+        GameEvent.OnPlayerDash -= PlayDashSmoke;
     }
 
     /// <summary>
@@ -65,6 +67,24 @@ public class EffectManager : MonoBehaviour
             "LandDust",
             player.position + Vector3.down * 0.9f,
             Quaternion.identity);
+    }
+
+    ///<summary>
+    /// Dash Smoke 생성
+    ///</summary>
+
+    private void PlayDashSmoke()
+    {
+        if (player == null)
+        {
+            Debug.LogWarning("Player가 연결되지 않았습니다.");
+            return;
+        }
+        // 플레이어가 바라보는 방향으로 생성
+        SpawnEffect(
+            "DashSmoke",
+            player.position + Vector3.down * 0.9f,
+            player.rotation);
     }
 
     /// <summary>
