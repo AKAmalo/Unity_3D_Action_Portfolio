@@ -147,6 +147,7 @@ camera.right * input.x
 * 액션에 부여하는 이펙트 효과를 관리하는 시스템 구현
 * LandDust.prefab을 제작해 Pool System에 도입
 * JumpDust.prefab을 제작해 Pool System에 도입
+* DashSmoke.prefab을 제작해 pool System에 도입
 * EffectManager에서 효과를 불러오기 쉽게, SpawnEffect 함수 추가
 
 ---
