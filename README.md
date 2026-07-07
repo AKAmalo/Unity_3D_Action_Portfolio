@@ -139,6 +139,7 @@ camera.right * input.x
 ## Event System 기반 생성
 
 * 플레이어 행동에 기반한 Event 관리 시스템
+* GameEvent 리펙토링, EffectManager 구조 단순화
 
 ---
 
