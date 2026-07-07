@@ -51,7 +51,9 @@ public class DashState : IPlayerState
         player.GetAnimator().SetTrigger("Dash");
 
         // Dash 이벤트 발생
-        GameEvent.OnPlayerDash?.Invoke();
+        GameEvent.OnPlayerDash?.Invoke(
+            player.GetTransform().position,
+            player.GetTransform().rotation);
     }
 
     public void Update()

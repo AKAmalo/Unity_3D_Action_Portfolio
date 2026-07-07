@@ -36,7 +36,7 @@ public class EffectManager : MonoBehaviour
     /// <summary>
     /// 플레이어 점프 시 먼지 생성
     /// </summary>
-    private void PlayJumpDust()
+    private void PlayJumpDust(Vector3 position, Quaternion rotation)
     {
         if (player == null)
         {
@@ -46,14 +46,14 @@ public class EffectManager : MonoBehaviour
 
         SpawnEffect(
                 "JumpDust",
-                player.position + Vector3.down * 0.9f,
+                position + Vector3.down * 0.9f,
                 Quaternion.identity);
     }
 
     /// <summary>
     /// 플레이어 착지 시 먼지 생성
     /// </summary>
-    private void PlayLandDust()
+    private void PlayLandDust(Vector3 position, Quaternion rotation)
     {
         // Inspector에 Player가 연결되지 않은 경우
         if (player == null)
@@ -65,7 +65,7 @@ public class EffectManager : MonoBehaviour
         // 공동 생성 함수를 사용하도록 변경
         SpawnEffect(
             "LandDust",
-            player.position + Vector3.down * 0.9f,
+            position + Vector3.down * 0.9f,
             Quaternion.identity);
     }
 
@@ -73,7 +73,7 @@ public class EffectManager : MonoBehaviour
     /// Dash Smoke 생성
     ///</summary>
 
-    private void PlayDashSmoke()
+    private void PlayDashSmoke(Vector3 position, Quaternion rotation)
     {
         if (player == null)
         {
@@ -83,8 +83,8 @@ public class EffectManager : MonoBehaviour
         // 플레이어가 바라보는 방향으로 생성
         SpawnEffect(
             "DashSmoke",
-            player.position + Vector3.down * 0.9f,
-            player.rotation);
+            position + Vector3.down * 0.9f,
+            rotation);
     }
 
     /// <summary>

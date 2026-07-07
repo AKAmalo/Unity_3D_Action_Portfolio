@@ -5,12 +5,13 @@ using UnityEngine;
 
 public static class GameEvent
 {
+    // 위치와 회전을 함께 전달
     // 플레이어 점프
-    public static Action OnPlayerJump;
+    public static Action<Vector3, Quaternion> OnPlayerJump;
 
     // 플레이어 착지
-    public static Action OnPlayerLand;
+    public static Action<Vector3, Quaternion> OnPlayerLand;
 
     // 플레이어 대쉬
-    public static Action OnPlayerDash;
+    public static Action<Vector3, Quaternion> OnPlayerDash;
 }

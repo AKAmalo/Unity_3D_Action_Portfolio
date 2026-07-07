@@ -63,7 +63,9 @@ public class FallState : IPlayerState
             }
 
             // Land 이벤트 발생
-            GameEvent.OnPlayerLand?.Invoke();
+            GameEvent.OnPlayerLand?.Invoke(
+                player.GetTransform().position,
+                player.GetTransform().rotation);
 
             return;
         }

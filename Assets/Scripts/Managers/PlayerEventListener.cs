@@ -18,17 +18,17 @@ public class PlayerEventListener : MonoBehaviour
         GameEvent.OnPlayerLand -= OnLand;
     }
 
-    private void OnJump()
+    private void OnJump(Vector3 position, Quaternion rotation)
     {
         Debug.Log("EVENT : Player Jump");
     }
 
-    private void OnDash()
+    private void OnDash(Vector3 position, Quaternion rotation)
     {
         Debug.Log("EVENT : Player Dash");
     }
 
-    private void OnLand()
+    private void OnLand(Vector3 position, Quaternion rotation)
     {
         Debug.Log("EVENT : Player Land");
     }

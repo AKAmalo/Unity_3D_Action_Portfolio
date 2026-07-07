@@ -200,7 +200,9 @@ public class PlayerMovement : MonoBehaviour
         coyoteCounter = 0f;
 
         // Event 발생
-        GameEvent.OnPlayerJump?.Invoke();
+        GameEvent.OnPlayerJump?.Invoke(
+            transform.position,
+            transform.rotation);
     }
 
     public void Rotate(Vector3 moveDir)
@@ -450,5 +452,11 @@ public class PlayerMovement : MonoBehaviour
     public float GetDashCooldownRemaining()
     {
         return Mathf.Max(0f, dashCooldownTimer);
+    }
+
+    // 자신의 Transform 반환
+    public Transform GetTransform()
+    {
+        return transform;
     }
 }
