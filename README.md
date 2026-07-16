@@ -153,6 +153,13 @@ camera.right * input.x
 
 ---
 
+## Sound Manager
+
+* Sound Manager를 통해 각 액션에 대한 효과음 제어
+* Jump, Dash, Soft&Hard Landing 효과음 추가
+
+---
+
 # ⚙️ 구현 상세
 
 ## 이동 시스템
