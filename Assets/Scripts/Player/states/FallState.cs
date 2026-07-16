@@ -53,6 +53,12 @@ public class FallState : IPlayerState
                 // Hard Landing
                 player.GetAnimator().SetTrigger("HardLand");
                 player.ChangeState(new LandState(player, 0.8f, true));
+
+                // HardLand 이벤트 발생
+                GameEvent.OnPlayerLand?.Invoke(
+                    player.GetTransform().position,
+                    player.GetTransform().rotation,
+                    true);
             }
             else
             {
@@ -60,12 +66,13 @@ public class FallState : IPlayerState
                 // Soft Landing
                 player.GetAnimator().SetTrigger("SoftLand");
                 player.ChangeState(new LandState(player, 0.15f, false));
-            }
 
-            // Land 이벤트 발생
-            GameEvent.OnPlayerLand?.Invoke(
-                player.GetTransform().position,
-                player.GetTransform().rotation);
+                // SoftLand 이벤트 발생
+                GameEvent.OnPlayerLand?.Invoke(
+                    player.GetTransform().position,
+                    player.GetTransform().rotation,
+                    false);
+            }
 
             return;
         }

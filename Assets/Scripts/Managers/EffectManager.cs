@@ -53,7 +53,7 @@ public class EffectManager : MonoBehaviour
     /// <summary>
     /// 플레이어 착지 시 먼지 생성
     /// </summary>
-    private void PlayLandDust(Vector3 position, Quaternion rotation)
+    private void PlayLandDust(Vector3 position, Quaternion rotation, bool hardLanding)
     {
         // Inspector에 Player가 연결되지 않은 경우
         if (player == null)
@@ -62,11 +62,20 @@ public class EffectManager : MonoBehaviour
             return;
         }
 
-        // 공동 생성 함수를 사용하도록 변경
-        SpawnEffect(
-            "LandDust",
-            position + Vector3.down * 0.9f,
-            Quaternion.identity);
+        if(hardLanding)
+        {
+            SpawnEffect(
+                "HardLandDust",
+                position + Vector3.down * 0.9f,
+                Quaternion.identity);
+        }
+        else
+        {
+            SpawnEffect(
+                "SoftLandDust",
+                position + Vector3.down * 0.9f,
+                Quaternion.identity);
+        }
     }
 
     ///<summary>

@@ -28,8 +28,8 @@ public class PlayerEventListener : MonoBehaviour
         Debug.Log("EVENT : Player Dash");
     }
 
-    private void OnLand(Vector3 position, Quaternion rotation)
+    private void OnLand(Vector3 position, Quaternion rotation, bool hardLanding)
     {
-        Debug.Log("EVENT : Player Land");
+        Debug.Log(hardLanding ? "EVENT : Hard Land" : "EVENT : Soft Land");
     }
 }
