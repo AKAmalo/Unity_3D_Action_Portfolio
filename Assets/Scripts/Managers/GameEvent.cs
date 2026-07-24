@@ -14,4 +14,7 @@ public static class GameEvent
 
     // 플레이어 대쉬
     public static Action<Vector3, Quaternion> OnPlayerDash;
+
+    // 플레이어 발소리
+    public static Action<Vector3> OnPlayerFootstep;
 }

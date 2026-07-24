@@ -459,4 +459,15 @@ public class PlayerMovement : MonoBehaviour
     {
         return transform;
     }
+
+    // Animation Event에서 호출되는 함수
+    // 발이 땅에 닿는 순간 호출
+
+    public void Footstep()
+    {
+        if (!isGrounded)
+            return;
+
+        GameEvent.OnPlayerFootstep?.Invoke(transform.position);
+    }
 }

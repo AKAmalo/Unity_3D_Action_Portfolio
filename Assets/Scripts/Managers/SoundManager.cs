@@ -12,10 +12,19 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip dashClip;
     [SerializeField] private AudioClip softLandClip;
     [SerializeField] private AudioClip hardLandClip;
+    [SerializeField] private AudioClip footstepClip;
 
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
     private void OnEnable()
@@ -23,6 +32,7 @@ public class SoundManager : MonoBehaviour
         GameEvent.OnPlayerJump += PlayJumpSound;
         GameEvent.OnPlayerLand += PlayLandSound;
         GameEvent.OnPlayerDash += PlayDashSound;
+        GameEvent.OnPlayerFootstep += PlayFootstepSound;
     }
 
     private void OnDisable()
@@ -30,6 +40,7 @@ public class SoundManager : MonoBehaviour
         GameEvent.OnPlayerJump -= PlayJumpSound;
         GameEvent.OnPlayerLand -= PlayLandSound;
         GameEvent.OnPlayerDash -= PlayDashSound;
+        GameEvent.OnPlayerFootstep -= PlayFootstepSound;
     }
 
     private void PlayJumpSound(Vector3 pos, Quaternion rot)
@@ -54,18 +65,45 @@ public class SoundManager : MonoBehaviour
         SpawnSound(dashClip, pos);
     }
 
+    private void PlayFootstepSound(Vector3 position)
+    {
+        SpawnSound(footstepClip, position);
+    }
+
     public void SpawnSound(AudioClip clip, Vector3 position)
     {
+        // 재생할 AudioClip이 없는 경우
+       if (clip == null)
+        {
+            Debug.LogWarning("SoundManager: 재생하려는 AudioClip이 없습니다.");
+            return;
+        }
+
+       // Sound Pool에서 오브젝트 가져오기
         PoolObject sound = PoolManager.Instance.Spawn("Sound");
 
         if (sound == null)
+        {
+            Debug.LogWarning("SoundManager: Sound Pool에서 오브젝트를 가져오지 못했습니다.");
             return;
+        }
 
+        // 사운드 재생 위치 설정
         sound.transform.position = position;
 
-        AudioSource source = sound.GetComponent<AudioSource>();
+        // PoolAudioAutoReturn 가져오기
+        PoolAudioAutoReturn autoReturn = sound.GetComponent<PoolAudioAutoReturn>();
 
-        source.clip = clip;
-        source.Play();
+        if (autoReturn == null)
+        {
+            Debug.LogWarning("Sound 오브젝트에 PoolAudioAutoReturn 컴포넌트가 없습니다.");
+
+            sound.ReturnToPool();
+            return;
+        }
+
+        // AudipClip 설정 + 재생
+        // 재생이 끝나면 자동으로 Pool 반환
+        autoReturn.Play(clip); 
     }
 }
