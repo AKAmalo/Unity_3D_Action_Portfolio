@@ -57,15 +57,6 @@ public class Pool
             particle.Play();
         }
 
-       /* // AudioSource¸¦ Àç»ý
-        AudioSource audioSource = obj.GetComponent<AudioSource>();
-
-        if(audioSource != null)
-        {
-            audioSource.Stop();
-            audioSource.Play();
-        }*/
-
         return obj;
     }
 

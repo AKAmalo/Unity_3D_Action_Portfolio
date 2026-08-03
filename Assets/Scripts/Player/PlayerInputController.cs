@@ -10,6 +10,7 @@ public class PlayerInputController : MonoBehaviour
     public bool JumpHold { get; private set; }
     public bool RunPressed { get; private set; }
     public bool DashPressed { get; private set; }
+    public bool InteractPressed { get; private set; }
 
     public bool ConsumeJump()
     {
@@ -29,6 +30,12 @@ public class PlayerInputController : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    // 상호작용 입력 소비
+    public void ConsumeInteract()
+    {
+        InteractPressed = false;
     }
 
     void Update()
@@ -61,5 +68,7 @@ public class PlayerInputController : MonoBehaviour
         {
             DashPressed = true;
         }
+
+        InteractPressed = Input.GetKeyDown(KeyCode.E);
     }
 }
