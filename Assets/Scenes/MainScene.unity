@@ -1354,6 +1354,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openAngle: 90
   openSpeed: 2
+  openText: Open Door
+  closeText: Close Door
 --- !u!1 &538285710
 GameObject:
   m_ObjectHideFlags: 0

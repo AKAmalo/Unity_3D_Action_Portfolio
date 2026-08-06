@@ -30,6 +30,9 @@ public class PlayerAnimationEvent : MonoBehaviour
         if (!player.IsGrounded())
             return;
 
+        if (!player.HasMoveInput())
+            return;
+
         // 플레이어 위치를 전달해서 발소리 이벤트 발생
         GameEvent.OnPlayerFootstep?.Invoke(
             player.GetTransform().position);
