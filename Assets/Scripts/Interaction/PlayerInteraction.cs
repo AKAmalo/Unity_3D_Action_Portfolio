@@ -14,6 +14,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private PlayerMovement player;
     private PlayerInputController input;
+    private IInteractable currentInteractable;
 
     private void Awake()
     {
@@ -38,7 +39,19 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void DetectInteraction()
     {
-        Debug.DrawRay(transform.position + Vector3.up, transform.forward * interactDistance, Color.green);
+        Vector3 origin = transform.position + Vector3.up;
+        Vector3 direction = transform.forward;
+
+        Debug.DrawRay(origin, direction * interactDistance, Color.green);
+
+        currentInteractable = null;
+
+        Ray ray = new Ray(origin, direction);
+
+        if(Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayer))
+        {
+            currentInteractable = hit.collider.GetComponent<IInteractable>();
+        }
     }
 
     /// <summary>
@@ -46,16 +59,18 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void TryInteract()
     {
-        Ray ray = new Ray(transform.position + Vector3.up, transform.forward);
+        if (currentInteractable == null)
+            return;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayer))
-        {
-         IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+        currentInteractable.Interact(player);
+    }
 
-            if ( (interactable != null))
-            {
-                interactable.Interact(player);
-            }
-        }
+    /// <summary>
+    /// 현재 바라보고 있는 상호작용 오브젝트 반환
+    /// UI에서 사용할 예정
+    /// </summary>
+    public IInteractable GetCurrentInteractable()
+    {
+        return currentInteractable;
     }
 }
