@@ -159,6 +159,7 @@ camera.right * input.x
 * Jump, Dash, Soft&Hard Landing 효과음 추가
 * Walking 효과음 추가
 * Running 효과음 추가
+* Idle 상태에서 재생되던 발소리 버그 수정
 
 ---
 
@@ -167,6 +168,7 @@ camera.right * input.x
 * 맵과 플레이어 간 상호작용을 위한 인터렉션 시스템 구축
 * Door 오브젝트와 상호작용 로직 구현 -> E키로 상호작용하면 Door 오브젝트가 90도 회전
 * 오브젝트와 상호작용 가능한지 여부를 표시하는 Interaction UI 추가
+* Door 오브젝트 상호작용 시, 연속으로 E키 입력 방지
 
 ---
 
