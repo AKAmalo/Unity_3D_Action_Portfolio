@@ -169,6 +169,8 @@ camera.right * input.x
 * Door 오브젝트와 상호작용 로직 구현 -> E키로 상호작용하면 Door 오브젝트가 90도 회전
 * 오브젝트와 상호작용 가능한지 여부를 표시하는 Interaction UI 추가
 * Door 오브젝트 상호작용 시, 연속으로 E키 입력 방지
+* Door 양방향 회전 기능 추가
+* Lever 추가 - 월드 내 여러 interaction 오브젝트와 상호작용 가능한 기능
 
 ---
 
