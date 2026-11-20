@@ -171,6 +171,7 @@ camera.right * input.x
 * Door 오브젝트 상호작용 시, 연속으로 E키 입력 방지
 * Door 양방향 회전 기능 추가
 * Lever 추가 - 월드 내 여러 interaction 오브젝트와 상호작용 가능한 기능
+* Moving platform 과 압력판 트리거 구현
 
 ---
 
