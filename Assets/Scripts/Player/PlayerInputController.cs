@@ -69,6 +69,10 @@ public class PlayerInputController : MonoBehaviour
             DashPressed = true;
         }
 
-        InteractPressed = Input.GetKeyDown(KeyCode.E);
+        // InteractPressed = Input.GetKeyDown(KeyCode.E);
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            InteractPressed = true;
+        }
     }
 }
